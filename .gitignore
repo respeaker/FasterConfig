@@ -1,0 +1,16 @@
+*.o
+.DS_Store
+.*.swp
+dnsserver
+/build
+/.config
+/.config.old
+*.orig
+*.rej
+*~
+.#*
+*#
+.emacs.desktop*
+TAGS*~
+git-src
+.p4cache/
