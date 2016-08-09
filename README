@@ -45,6 +45,13 @@ To grasp easily the server design, it is recomended to take a look at the UML
 class and sequence diagrams, then look up Doxygen documentation and finally
 jump into the C++ source code.
 
+Query package
+-----------------------
+![](https://github.com/respeaker/FasterConfig/blob/master/pic/query.png)
+
+Response package
+----------------------
+![](https://github.com/respeaker/FasterConfig/blob/master/pic/response.png)
 
 Doxygen 
 -----------------------
