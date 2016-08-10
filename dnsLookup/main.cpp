@@ -47,7 +47,7 @@ int main(void) {
     }
 
     for (int i = 0; i != veculIPList.size(); ++i) {
-        printf("IP%d(ULONG) = %u\n", i + 1, veculIPList[i]);
+        printf("IP%d(ULONG) = %lu\n", i + 1, veculIPList[i]);
     }
     for (int i = 0; i != vecstrIPList.size(); ++i) {
         printf("IP%d(string) = %s\n", i + 1, vecstrIPList[i].c_str());
@@ -55,7 +55,7 @@ int main(void) {
     for (int i = 0; i != vecCNameList.size(); ++i) {
         printf("CName%d = %s\n", i + 1, vecCNameList[i].c_str());
     }
-    printf("time spent = %ums\n", ulTimeSpent);
+    printf("time spent = %lums\n", ulTimeSpent);
 
     return 0;
 }

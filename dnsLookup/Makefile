@@ -20,4 +20,4 @@ $(PRG):$(OBJ)
 .PRONY:clean  
 clean:  
 	@echo "Removing linked and compiled files......"  
-	rm -f $(OBJ) $(PRG)  
+	rm -f  $(PRG)  
