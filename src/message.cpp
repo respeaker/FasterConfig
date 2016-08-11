@@ -51,15 +51,9 @@ string Message::asString() const throw() {
 
 void Message::decode_hdr(const char* buffer) throw () {
     struct  DNSHeader tmpHeader;
-    tmpHeader.usFlags = get16bits(buffer); 
+    tmpHeader.usTransID = get16bits(buffer); 
 
-    uint fields = get16bits(buffer);
-    tmpHeader.usFlags.usQR      = fields & QR_MASK; 
-    tmpHeader.usFlags.usOpcode  = fields & OPCODE_MASK; 
-    tmpHeader.usFlags.usAA      = fields & AA_MASK; 
-    tmpHeader.usFlags.usTC      = fields & TC_MASK; 
-    tmpHeader.usFlags.usRD      = fields & RD_MASK;
-    tmpHeader.usFlags.usRA      = fields & RA_MASK;
+    tmpHeader.usFlags = get16bits(buffer);
 
     tmpHeader.usQDCOUNT = get16bits(buffer); 
     tmpHeader.usANCOUNT = get16bits(buffer);
@@ -71,10 +65,12 @@ void Message::decode_hdr(const char* buffer) throw () {
 
 void Message::code_hdr(char* buffer) throw () {
 
-    put16bits(buffer, usDNS.usBase.usNAME); 
+    put16bits(buffer, usDNS.usBase.usTransID); 
 
-    usDNS.usHeader.usFlags.usQR     = 1;
-    usDNS.usHeader.usFlags.usOpcode = 1; 
+    //set QR as Response package
+    usDNS.usHeader.usFlags      |= QR_MASK; 
+    //set Opcode as Response package
+    usDNS.usHeader.usFlags      |= OPCODE_MASK; 
     put16bits(buffer, usDNS.usHeader.usFlags); 
 
     put16bits(buffer, tmpHeader.usQDCOUNT);

@@ -50,7 +50,7 @@ struct DNSHeaderFlags {
 
 struct DNSHeader {
     unsigned short usTransID; //标识符
-    struct DNSHeaderFlags usFlags; //各种标志位
+    unsigned short usFlags; //各种标志位
     unsigned short usQDCOUNT; //Question字段个数
     unsigned short usANCOUNT; //Answer字段个数
     unsigned short usNSCOUNT; //Authority字段个数
