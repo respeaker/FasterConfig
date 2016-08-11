@@ -39,48 +39,48 @@ using namespace std;
 string Message::asString() const throw() {
 
     ostringstream text;
-    text << "ID: " << showbase << hex << m_id << endl << noshowbase;
-    text << "\tfields: [ QR: " << m_qr << " opCode: " << m_opcode << " ]" << endl;
-    text << "\tQDcount: " << m_qdCount << endl;
-    text << "\tANcount: " << m_anCount << endl;
-    text << "\tNScount: " << m_nsCount << endl;
-    text << "\tARcount: " << m_arCount << endl;
+    text << "ID: " << showbase << hex << usDNS.usHeader.usTransID << endl << noshowbase; 
+    text << "\tfields: [ QR: " << usDNS.usHeader.usFlags.usQR << " opCode: " << usDNS.usHeader.usFlags.usOpcode << " ]" << endl; 
+    text << "\tQDcount: " << tmpHeader.usQDCOUNT << endl;
+    text << "\tANcount: " << tmpHeader.usANCOUNT << endl;
+    text << "\tNScount: " << tmpHeader.usNSCOUNT << endl;
+    text << "\tARcount: " << tmpHeader.usARCOUNT << endl;
 
     return text.str();
 }
 
 void Message::decode_hdr(const char* buffer) throw () {
-
-    m_id = get16bits(buffer);
+    struct  DNSHeader tmpHeader;
+    tmpHeader.usFlags = get16bits(buffer); 
 
     uint fields = get16bits(buffer);
-    m_qr = fields & QR_MASK;
-    m_opcode = fields & OPCODE_MASK;
-    m_aa = fields & AA_MASK;
-    m_tc = fields & TC_MASK;
-    m_rd = fields & RD_MASK;
-    m_ra = fields & RA_MASK;
+    tmpHeader.usFlags.usQR      = fields & QR_MASK; 
+    tmpHeader.usFlags.usOpcode  = fields & OPCODE_MASK; 
+    tmpHeader.usFlags.usAA      = fields & AA_MASK; 
+    tmpHeader.usFlags.usTC      = fields & TC_MASK; 
+    tmpHeader.usFlags.usRD      = fields & RD_MASK;
+    tmpHeader.usFlags.usRA      = fields & RA_MASK;
 
-    m_qdCount = get16bits(buffer);
-    m_anCount = get16bits(buffer);
-    m_nsCount = get16bits(buffer);
-    m_arCount = get16bits(buffer);
+    tmpHeader.usQDCOUNT = get16bits(buffer); 
+    tmpHeader.usANCOUNT = get16bits(buffer);
+    tmpHeader.usNSCOUNT = get16bits(buffer);
+    tmpHeader.usARCOUNT = get16bits(buffer);
+
+    usDNS.usHeader = tmpHeader;
 }
 
 void Message::code_hdr(char* buffer) throw () {
 
-    put16bits(buffer, m_id);
+    put16bits(buffer, usDNS.usBase.usNAME); 
 
-    int fields = (m_qr << 15);
-    fields += (m_opcode << 14);
-    //...
-    fields += m_rcode;
-    put16bits(buffer, fields);
+    usDNS.usHeader.usFlags.usQR     = 1;
+    usDNS.usHeader.usFlags.usOpcode = 1; 
+    put16bits(buffer, usDNS.usHeader.usFlags); 
 
-    put16bits(buffer, m_qdCount);
-    put16bits(buffer, m_anCount);
-    put16bits(buffer, m_nsCount);
-    put16bits(buffer, m_arCount);
+    put16bits(buffer, tmpHeader.usQDCOUNT);
+    put16bits(buffer, tmpHeader.usANCOUNT);
+    put16bits(buffer, tmpHeader.usNSCOUNT);
+    put16bits(buffer, tmpHeader.usANCOUNT);
 }
 
 void Message::log_buffer(const char* buffer, int size) throw () {

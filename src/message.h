@@ -37,6 +37,40 @@ typedef unsigned char uchar;
 typedef unsigned int uint;
 typedef unsigned long ulong;
 
+struct DNSHeaderFlags {
+    unsigned char usQR : 1;
+    unsigned char usOpcode : 4;
+    unsigned char usAA : 1;
+    unsigned char usTC : 1;
+    unsigned char usRD : 1;
+    unsigned char usRA : 1;
+    unsigned char usZ :3;
+    unsigned char usRCODE : 4;
+};
+
+struct DNSHeader {
+    unsigned short usTransID; //标识符
+    struct DNSHeaderFlags usFlags; //各种标志位
+    unsigned short usQDCOUNT; //Question字段个数
+    unsigned short usANCOUNT; //Answer字段个数
+    unsigned short usNSCOUNT; //Authority字段个数
+    unsigned short usARCOUNT; //Additional字段个数
+};
+
+struct  DNSBase {
+    char*           usNAME;
+    unsigned short  usTYPE;     //type
+    unsigned short  usCLASS;    //class
+};
+
+struct DNS {
+    struct DNSHeader    usHeader;
+    struct DNSBase      usBase;
+    unsigned int        usTTL;
+    unsigned short      usRDLENGT;
+    char*               usRDATA;
+};
+
 /**
  *  Abstract class that represents the DNS Message and is able to code itself
  *  in the corresponding Message format.
@@ -76,7 +110,7 @@ public:
 
 protected:
     static const uint HDR_OFFSET = 12;
-
+#if 0
     uint m_id;
     uint m_qr;
     uint m_opcode;
@@ -90,7 +124,9 @@ protected:
     uint m_anCount;
     uint m_nsCount;
     uint m_arCount;
-
+#endif 
+    uint m_qr;
+    struct DNS usDNS;
     /**
      *  Constructor.
      *  @param type The type of DNS Message
