@@ -52,10 +52,10 @@ LDLIBSOPTIONS=
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	${MAKE}  -f nbproject/Makefile-Debug.mk dnsserver
+	${MAKE}  -f nbproject/Makefile-Debug.mk fasterconfig
 
-dnsserver: ${OBJECTFILES}
-	${LINK.cc} -o dnsserver ${OBJECTFILES} ${LDLIBSOPTIONS} 
+fasterconfig: ${OBJECTFILES}
+	${LINK.cc} -o fasterconfig ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
 ${OBJECTDIR}/src/response.o: src/response.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
@@ -103,7 +103,7 @@ ${OBJECTDIR}/src/resolver.o: src/resolver.cpp
 # Clean Targets
 .clean-conf:
 	${RM} -r build/Debug
-	${RM} dnsserver
+	${RM} fasterconfig
 
 # Subprojects
 .clean-subprojects:

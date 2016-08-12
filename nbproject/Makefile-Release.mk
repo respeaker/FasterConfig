@@ -52,11 +52,11 @@ LDLIBSOPTIONS=
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	${MAKE}  -f nbproject/Makefile-Release.mk dist/Release/${PLATFORM}/dnsserver.exe
+	${MAKE}  -f nbproject/Makefile-Release.mk dist/Release/${PLATFORM}/fasterconfig.exe
 
-dist/Release/${PLATFORM}/dnsserver.exe: ${OBJECTFILES}
+dist/Release/${PLATFORM}/fasterconfig.exe: ${OBJECTFILES}
 	${MKDIR} -p dist/Release/${PLATFORM}
-	${LINK.cc} -o dist/Release/${PLATFORM}/dnsserver ${OBJECTFILES} ${LDLIBSOPTIONS} 
+	${LINK.cc} -o dist/Release/${PLATFORM}/fasterconfig ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
 ${OBJECTDIR}/src/response.o: src/response.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
@@ -104,7 +104,7 @@ ${OBJECTDIR}/src/resolver.o: src/resolver.cpp
 # Clean Targets
 .clean-conf:
 	${RM} -r build/Release
-	${RM} dist/Release/${PLATFORM}/dnsserver.exe
+	${RM} dist/Release/${PLATFORM}/fasterconfig.exe
 
 # Subprojects
 .clean-subprojects:
