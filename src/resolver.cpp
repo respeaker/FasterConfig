@@ -172,7 +172,7 @@ void Resolver::process(const Query& query, Response& response) throw () {
     string text("Resolver::process()");
     text += query.asString();
     logger.trace(text);
-
+#if 0
     string qName = query.getQName();
     string ipAddress = convert(qName);
     string domainName = find( ipAddress );
@@ -198,7 +198,7 @@ void Resolver::process(const Query& query, Response& response) throw () {
         response.setRCode(Response::Ok);
         response.setRdLength(domainName.size()+2); // + initial label length & null label
     }
-
+#endif
     text = "Resolver::process()";
     text += response.asString();
     logger.trace(text);
