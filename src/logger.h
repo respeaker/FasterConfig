@@ -32,9 +32,14 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-
+#include <stdio.h>
 namespace dns {
-
+#define FASTERCONFIG_DEBUG
+#ifdef FASTERCONFIG_DEBUG
+#define MSG(fmt, args...) cout << ("FASTERCONFIG: " fmt, ## args) << endl;
+#else
+#define MSG(fmt, args...) { }
+#endif
 /**
  *  Logger is a helper class that allows to trace text messages to a log file.
  *  It is a single instance class or also known as Singleton.
