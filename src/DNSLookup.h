@@ -24,6 +24,9 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
+#include "query.h"
+#include "response.h"
+#include  "resolver.h"
 #include <string>
 #include <vector>
 #include <netinet/in.h>
@@ -54,22 +57,14 @@
 
 typedef unsigned char       BYTE;
 
-
-
-struct DNSHeader {
-    USHORT usTransID; //标识符
-    USHORT usFlags; //各种标志位
-    USHORT usQuestionCount; //Question字段个数
-    USHORT usAnswerCount; //Answer字段个数
-    USHORT usAuthorityCount; //Authority字段个数
-    USHORT usAdditionalCount; //Additional字段个数
-};
+namespace dns {
 
 class CDNSLookup {
 public:
+
     CDNSLookup();
     ~CDNSLookup();
-
+    CDNSLookup(Resolver resolver);
     BOOL DNSLookup(ULONG ulDNSServerIP, char *szDomainName, std::vector<ULONG> *pveculIPList = NULL, std::vector<std::string> *pvecstrCNameList = NULL, ULONG ulTimeout = 1000, ULONG *pulTimeSpent = NULL);
     BOOL DNSLookup(ULONG ulDNSServerIP, char *szDomainName, std::vector<std::string> *pvecstrIPList = NULL, std::vector<std::string> *pvecstrCNameList = NULL, ULONG ulTimeout = 1000, ULONG *pulTimeSpent = NULL);
 
@@ -89,4 +84,10 @@ private:
     USHORT m_usCurrentProcID;
     char *m_szDNSPacket;
     struct sockaddr_in m_address;
+
+    Query m_query;
+    Response m_response;
+
+    Resolver& m_resolver;
 };
+}
