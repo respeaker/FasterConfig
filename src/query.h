@@ -29,7 +29,8 @@
 #define	_DNS_REQUEST_H
 
 #include <string>
-
+#include <sys/types.h>
+#include <unistd.h>
 #include "message.h"
 
 namespace dns {
@@ -43,7 +44,9 @@ public:
     /**
      *  Constructor.
      */
-    Query() : Message(Message::Query) { }
+    Query() : Message(Message::Query) {
+        usCurrentProcID = (unsigned short)getpid();
+    }
 
     /**
      *  Destructor
@@ -69,17 +72,24 @@ public:
      *  @return The string text with the query information.
      */
     std::string asString() const throw();
+    /**
+     * init 
+     */
+    void init();
+#if 0
+    const std::string& getQName() const throw() { return usDNS.usBase.usNAME; }
+    const uint getQType() const throw() { return usDNS.usBase.usTYPE; }
+    const uint getQClass() const throw() { return usDNS.usBase.usCLASS; }
+#endif    
 
-    const std::string& getQName() const throw () { return m_qName; }
-    const uint getQType() const throw () { return m_qType; }
-    const uint getQClass() const throw () { return m_qClass; }
-    
 private:
+    unsigned short usCurrentProcID;
     std::string m_qName;
+#if 0
     uint m_qType;
     uint m_qClass;
-
-    void decode_qname(const char*& buffer) throw();
+#endif
+    void decode_qname(const char*& buffer, char *binaryName, unsigned int* binaryNameLength) throw();
 };
 }
 #endif	/* _DNS_REQUEST_H */
