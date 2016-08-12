@@ -30,13 +30,18 @@
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <iostream>
+using namespace std;
+using namespace dns;
 
-CDNSLookup::CDNSLookup() :
+CDNSLookup::CDNSLookup(Resolver resolver) :
     m_bIsInitOK(FALSE),
     m_sock(0),
+    m_resolver(resolver),
     m_szDNSPacket(NULL) {
     m_bIsInitOK = Init();
 }
+
 
 CDNSLookup::~CDNSLookup() {
     UnInit();
@@ -71,7 +76,7 @@ BOOL CDNSLookup::DNSLookup(ULONG ulDNSServerIP, char *szDomainName, std::vector<
 
 
 BOOL CDNSLookup::Init() {
-
+    cout << "init socket ......" << endl;
     if ((m_sock = socket(AF_INET, SOCK_DGRAM, 0)) == 0) {
         return FALSE;
     }
@@ -119,7 +124,6 @@ BOOL CDNSLookup::DNSLookupCore(ULONG ulDNSServerIP, char *szDomainName, std::vec
 BOOL CDNSLookup::SendDNSRequest(sockaddr_in sockAddrDNSServer, char *szDomainName) {
     char *pWriteDNSPacket = m_szDNSPacket;
     memset(pWriteDNSPacket, 0, DNS_PACKET_MAX_SIZE);
-
     //填充DNS查询报文头部
     DNSHeader *pDNSHeader = (DNSHeader *)pWriteDNSPacket;
     pDNSHeader->usTransID = m_usCurrentProcID;
@@ -150,6 +154,8 @@ BOOL CDNSLookup::SendDNSRequest(sockaddr_in sockAddrDNSServer, char *szDomainNam
 
     //发送DNS查询报文
     USHORT nDNSPacketSize = sizeof(DNSHeader) + nEncodedDomainNameLen + DNS_TYPE_SIZE + DNS_CLASS_SIZE;
+
+
     sendto(m_sock, m_szDNSPacket, nDNSPacketSize, 0, (sockaddr *)&sockAddrDNSServer, sizeof(sockAddrDNSServer));
 
 
@@ -173,12 +179,18 @@ BOOL CDNSLookup::RecvDNSResponse(sockaddr_in sockAddrDNSServer, ULONG ulTimeout,
 
     while (TRUE) {
         socklen_t nSockaddrDestSize = sizeof(sockAddrDNSServer);
-        //int nbytes = recvfrom(m_sockfd, buffer, BUFFER_SIZE, 0,
-        //             (struct sockaddr *) &clientAddress, &addrLen);
         //接收响应报文
-        recvfrom(m_sock, recvbuf, 1024, 0, 
+        int nbytes = recvfrom(m_sock, recvbuf, 1024, 0, 
                      (struct sockaddr *)&sockAddrDNSServer,
                       &nSockaddrDestSize);
+
+            m_query.decode(recvbuf, nbytes);
+            m_query.asString();
+
+            m_resolver.process(m_query, m_response);
+
+            m_response.asString();
+
             gettimeofday(&tpend, NULL);
             DNSHeader *pDNSHeader = (DNSHeader *)recvbuf;
             USHORT usQuestionCount = 0;
