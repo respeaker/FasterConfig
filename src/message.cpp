@@ -40,44 +40,53 @@ string Message::asString() const throw() {
 
     ostringstream text;
     text << "ID: " << showbase << hex << usDNS.usHeader.usTransID << endl << noshowbase; 
-    text << "\tfields: [ QR: " << usDNS.usHeader.usFlags.usQR << " opCode: " << usDNS.usHeader.usFlags.usOpcode << " ]" << endl; 
-    text << "\tQDcount: " << tmpHeader.usQDCOUNT << endl;
-    text << "\tANcount: " << tmpHeader.usANCOUNT << endl;
-    text << "\tNScount: " << tmpHeader.usNSCOUNT << endl;
-    text << "\tARcount: " << tmpHeader.usARCOUNT << endl;
-
+    text << "\tfields: [ QR: " << m_qr << " opCode: " << m_opcode << " ]" << endl; 
+    text << "\tQDcount: " << usDNS.usHeader.usQDCOUNT << endl;
+    text << "\tANcount: " << usDNS.usHeader.usANCOUNT << endl;
+    text << "\tNScount: " << usDNS.usHeader.usNSCOUNT << endl;
+    text << "\tARcount: " << usDNS.usHeader.usARCOUNT << endl;
     return text.str();
 }
 
 void Message::decode_hdr(const char* buffer) throw () {
     struct  DNSHeader tmpHeader;
+    
+        MSG("decode_hdr----------");
     tmpHeader.usTransID = get16bits(buffer); 
 
     tmpHeader.usFlags = get16bits(buffer);
-
+    usDNSFlags.usQR     = tmpHeader.usFlags & QR_MASK; 
+    usDNSFlags.usOpcode = tmpHeader.usFlags & OPCODE_MASK; 
+    usDNSFlags.usAA     = tmpHeader.usFlags & AA_MASK; 
+    usDNSFlags.usTC     = tmpHeader.usFlags & TC_MASK; 
+    usDNSFlags.usRD     = tmpHeader.usFlags & RD_MASK; 
+    usDNSFlags.usRA     = tmpHeader.usFlags & RA_MASK;    
     tmpHeader.usQDCOUNT = get16bits(buffer); 
     tmpHeader.usANCOUNT = get16bits(buffer);
     tmpHeader.usNSCOUNT = get16bits(buffer);
     tmpHeader.usARCOUNT = get16bits(buffer);
-
     usDNS.usHeader = tmpHeader;
+    m_qr        = tmpHeader.usFlags & QR_MASK;
+    m_opcode    = tmpHeader.usFlags & OPCODE_MASK;
+    MSG("decode_hdr");
 }
 
 void Message::code_hdr(char* buffer) throw () {
 
-    put16bits(buffer, usDNS.usBase.usTransID); 
+    put16bits(buffer, usDNS.usHeader.usTransID); 
 
     //set QR as Response package
-    usDNS.usHeader.usFlags      |= QR_MASK; 
+    usDNS.usHeader.usFlags      |= usDNSFlags.usQR << 15; 
     //set Opcode as Response package
-    usDNS.usHeader.usFlags      |= OPCODE_MASK; 
+    usDNS.usHeader.usFlags      |= usDNSFlags.usOpcode << 14; 
+    usDNS.usHeader.usFlags      += usDNSFlags.usRCODE;
     put16bits(buffer, usDNS.usHeader.usFlags); 
 
-    put16bits(buffer, tmpHeader.usQDCOUNT);
-    put16bits(buffer, tmpHeader.usANCOUNT);
-    put16bits(buffer, tmpHeader.usNSCOUNT);
-    put16bits(buffer, tmpHeader.usANCOUNT);
-}
+    put16bits(buffer, usDNS.usHeader.usQDCOUNT);
+    put16bits(buffer, usDNS.usHeader.usANCOUNT);
+    put16bits(buffer, usDNS.usHeader.usNSCOUNT);
+    put16bits(buffer, usDNS.usHeader.usANCOUNT);
+}                          
 
 void Message::log_buffer(const char* buffer, int size) throw () {
 

@@ -29,7 +29,10 @@
 #ifndef _DNS_MESSAGE_H
 #define	_DNS_MESSAGE_H
 
+#include <string.h>
 #include <string>
+#include <stdlib.h>
+#include <iostream>
 
 namespace dns {
 
@@ -57,18 +60,27 @@ struct DNSHeader {
     unsigned short usARCOUNT; //Additional字段个数
 };
 
-struct  DNSBase {
-    char*           usNAME;
-    unsigned short  usTYPE;     //type
-    unsigned short  usCLASS;    //class
+struct  DNSQuestionSection {
+     char*                   usNAME;
+    unsigned short          usTYPE;     //type
+    unsigned short          usCLASS;    //class
+    unsigned int            NameLength;
+};
+struct DNSAnswerSection{
+     char                    *usNAME; 
+    unsigned short          usTYPE;     //type
+    unsigned short          usCLASS;    //class
+    unsigned int            usTTL;
+    unsigned short          usRDLENGTH;
+     char*                   usRDATA;
+    unsigned int            NameLength;
+    unsigned int            RDdataLength;
 };
 
 struct DNS {
-    struct DNSHeader    usHeader;
-    struct DNSBase      usBase;
-    unsigned int        usTTL;
-    unsigned short      usRDLENGT;
-    char*               usRDATA;
+    struct DNSHeader               usHeader;
+    struct DNSQuestionSection*      usQuestionSection;
+    struct DNSAnswerSection*        usAnswerSection;
 };
 
 /**
@@ -96,20 +108,21 @@ public:
      */
     virtual void decode(const char* buffer, int size) throw() = 0;
 
-    uint getID() const throw() { return m_id; }
-    uint getQdCount() const throw() { return m_qdCount; }
-    uint getAnCount() const throw() { return m_anCount; }
-    uint getNsCount() const throw() { return m_nsCount; }
-    uint getArCount() const throw() { return m_arCount; }
+    uint getID() const throw() { return usDNS.usHeader.usTransID; }
+    uint getQdCount() const throw() { return usDNS.usHeader.usQDCOUNT; }
+    uint getAnCount() const throw() { return usDNS.usHeader.usANCOUNT; }
+    uint getNsCount() const throw() { return usDNS.usHeader.usNSCOUNT; }
+    uint getArCount() const throw() { return usDNS.usHeader.usARCOUNT; }
 
-    void setID(uint id) throw() { m_id = id; }
-    void setQdCount(uint count) throw() { m_qdCount = count; }
-    void setAnCount(uint count) throw() { m_anCount = count; }
-    void setNsCount(uint count) throw() { m_nsCount = count; }
-    void setArCount(uint count) throw() { m_arCount = count; }
+    void setID(uint id) throw() { usDNS.usHeader.usTransID = id; }
+    void setQdCount(uint count) throw() { usDNS.usHeader.usQDCOUNT = count; }
+    void setAnCount(uint count) throw() { usDNS.usHeader.usANCOUNT = count; }
+    void setNsCount(uint count) throw() { usDNS.usHeader.usNSCOUNT = count; }
+    void setArCount(uint count) throw() { usDNS.usHeader.usARCOUNT = count; }
 
 protected:
     static const uint HDR_OFFSET = 12;
+    uint m_opcode;
 #if 0
     uint m_id;
     uint m_qr;
@@ -127,16 +140,21 @@ protected:
 #endif 
     uint m_qr;
     struct DNS usDNS;
+    struct DNSHeaderFlags usDNSFlags;
     /**
      *  Constructor.
      *  @param type The type of DNS Message
      */
-    Message(Type type) : m_qr(type) { }
+    Message(Type type) : m_qr(type) { 
+
+    }
 
     /**
      *  Destructor
      */
-    virtual ~Message() { }
+    virtual ~Message() {
+
+    }
 
     /**
      *  Returns the DNS message header as a string text.
