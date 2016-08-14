@@ -51,7 +51,7 @@
       </toolsSet>
       <compileType>
         <linkerTool>
-          <output>dnsserver</output>
+          <output>fasterconfig</output>
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>

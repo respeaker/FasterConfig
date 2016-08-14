@@ -77,7 +77,7 @@ void Server::run() throw () {
 
         int nbytes = recvfrom(m_sockfd, buffer, BUFFER_SIZE, 0,
                      (struct sockaddr *) &clientAddress, &addrLen);
-
+       
         m_query.decode(buffer, nbytes);
         m_query.asString();
 

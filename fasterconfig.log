@@ -1,0 +1,18 @@
+ ## Application::run()
+ ## Resolver::init() | filename: hosts
+ ## Resolver::add() | Record: 127.0.0.1-localhost
+ ## Resolver::add() | Record: 193.180.17.140-www.ericsson.es
+ ## Resolver::add() | Record: 209.85.227.103-www.google.com
+ ## Resolver::add() | Record: 65.55.21.250-www.microsoft.com
+ ## Resolver::add() | Record: 17.112.152.32-www.apple.com
+ ## Server::init()
+ ## Server::run()
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 31 bytes
+---------------------------------
+00: 55 71 01 00 00 01 00 00 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 
+---------------------------------

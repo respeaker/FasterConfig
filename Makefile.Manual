@@ -21,7 +21,7 @@ LDFLAGS = $(LIBDIRS) $(LIBS)
 #
 		
 build:	$(CXXOBJECTS)
-	$(CXX) -o dnsserver $(CXXOBJECTS) $(LDFLAGS)
+	$(CXX) -o fasterconfig $(CXXOBJECTS) $(LDFLAGS)
 
 #
 # Object targets:
