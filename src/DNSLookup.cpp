@@ -128,10 +128,10 @@ BOOL CDNSLookup::SendDNSRequest(sockaddr_in sockAddrDNSServer, char *szDomainNam
     DNSHeader *pDNSHeader = (DNSHeader *)pWriteDNSPacket;
     pDNSHeader->usTransID = m_usCurrentProcID;
     pDNSHeader->usFlags = htons(0x0100);
-    pDNSHeader->usQuestionCount = htons(0x0001);
-    pDNSHeader->usAnswerCount = 0x0000;
-    pDNSHeader->usAuthorityCount = 0x0000;
-    pDNSHeader->usAdditionalCount = 0x0000;
+    pDNSHeader->usQDCOUNT = htons(0x0001); 
+    pDNSHeader->usANCOUNT = 0x0000; 
+    pDNSHeader->usNSCOUNT = 0x0000;
+    pDNSHeader->usARCOUNT = 0x0000; 
 
     //设置DNS查询报文内容
     USHORT usQType = htons(0x0001);
@@ -183,14 +183,14 @@ BOOL CDNSLookup::RecvDNSResponse(sockaddr_in sockAddrDNSServer, ULONG ulTimeout,
         int nbytes = recvfrom(m_sock, recvbuf, 1024, 0, 
                      (struct sockaddr *)&sockAddrDNSServer,
                       &nSockaddrDestSize);
-
+#if 0
             m_query.decode(recvbuf, nbytes);
             m_query.asString();
 
             m_resolver.process(m_query, m_response);
 
             m_response.asString();
-
+#endif 
             gettimeofday(&tpend, NULL);
             DNSHeader *pDNSHeader = (DNSHeader *)recvbuf;
             USHORT usQuestionCount = 0;
@@ -198,8 +198,8 @@ BOOL CDNSLookup::RecvDNSResponse(sockaddr_in sockAddrDNSServer, ULONG ulTimeout,
 
             if (pDNSHeader->usTransID == m_usCurrentProcID
                 && (ntohs(pDNSHeader->usFlags) & 0xfb7f) == 0x8100 //RFC1035 4.1.1(Header section format)
-                && (usQuestionCount = ntohs(pDNSHeader->usQuestionCount)) >= 0
-                && (usAnswerCount = ntohs(pDNSHeader->usAnswerCount)) > 0) {
+                && (usQuestionCount = ntohs(pDNSHeader->usQDCOUNT)) >= 0
+                && (usAnswerCount = ntohs(pDNSHeader->usANCOUNT)) > 0) {
                 char *pDNSData = recvbuf + sizeof(DNSHeader);
 
                 //解析Question字段
