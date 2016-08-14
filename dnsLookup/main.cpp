@@ -28,7 +28,7 @@
 #include "DNSLookup.h"
 
 int main(void) {
-    char szDomainName[] = "www.youku.com";
+    char szDomainName[] = "www.seeedstudio.com";
     std::vector<ULONG> veculIPList;
     std::vector<std::string> vecstrIPList;
     std::vector<std::string> vecCNameList;

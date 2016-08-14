@@ -30,7 +30,9 @@
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
-
+#include <iostream>
+#include <iomanip>
+using namespace std;
 CDNSLookup::CDNSLookup() :
     m_bIsInitOK(FALSE),
     m_sock(0),
@@ -176,9 +178,23 @@ BOOL CDNSLookup::RecvDNSResponse(sockaddr_in sockAddrDNSServer, ULONG ulTimeout,
         //int nbytes = recvfrom(m_sockfd, buffer, BUFFER_SIZE, 0,
         //             (struct sockaddr *) &clientAddress, &addrLen);
         //接收响应报文
-        recvfrom(m_sock, recvbuf, 1024, 0, 
+        unsigned int recv_size = recvfrom(m_sock, recvbuf, 1024, 0, 
                      (struct sockaddr *)&sockAddrDNSServer,
                       &nSockaddrDestSize);
+
+            cout << "size: " << recv_size << " bytes" << endl;
+            cout << "---------------------------------" << setfill('0');
+
+            for (int i = 0; i < recv_size; i++) {
+                if ((i % 10) == 0) {
+                    cout << endl << setw(2) << i << ": ";
+                }
+                unsigned char c = recvbuf[i];
+                cout << hex << setw(2) << int(c) << " " << dec;
+            }
+            cout << endl << setfill(' ');
+            cout << "---------------------------------";
+            cout << endl;
             gettimeofday(&tpend, NULL);
             DNSHeader *pDNSHeader = (DNSHeader *)recvbuf;
             USHORT usQuestionCount = 0;
@@ -197,7 +213,7 @@ BOOL CDNSLookup::RecvDNSResponse(sockaddr_in sockAddrDNSServer, ULONG ulTimeout,
                     }
                     pDNSData += (nEncodedNameLen + DNS_TYPE_SIZE + DNS_CLASS_SIZE);
                 }
-
+                cout <<"usAnswerCount:"<< usAnswerCount << endl;
                 //解析Answer字段
                 for (int a = 0; a != usAnswerCount; ++a) {
                     if (!DecodeDotStr(pDNSData, &nEncodedNameLen, szDotName, sizeof(szDotName), recvbuf)) {
@@ -313,6 +329,7 @@ BOOL CDNSLookup::DecodeDotStr(char *szEncodedStr, USHORT *pusEncodedStrLen, char
             }
             USHORT usJumpPos = ntohs(*(USHORT *)(pDecodePos)) & 0x3fff;
             USHORT nEncodeStrLen = 0;
+            cout << "has depress format: " << usJumpPos << endl;
             if (!DecodeDotStr(szPacketStartPos + usJumpPos, &nEncodeStrLen, szDotStr + usPlainStrLen, nDotStrSize - usPlainStrLen, szPacketStartPos)) {
                 return FALSE;
             } else {
