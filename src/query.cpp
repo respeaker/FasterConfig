@@ -72,15 +72,16 @@ void Query::decode(const char* buffer, int size) throw() {
     Logger& logger = Logger::instance();
     logger.trace("Query::decode()");
     log_buffer(buffer, size);
-
+    usCurrentProcID  = (unsigned short)getpid();
     decode_hdr(buffer);
 
     buffer += HDR_OFFSET;
 
-    if (usDNS.usHeader.usTransID == usCurrentProcID
+    if (ntohs(usDNS.usHeader.usTransID) == usCurrentProcID
                         //RFC1035 4.1.1(Header section format)
-         && usDNSFlags.usQR ? ((ntohs(usDNS.usHeader.usFlags) & 0xfb7f) == 0x8100 ):
-                              ((ntohs(usDNS.usHeader.usFlags) & 0xfb7f) == 0x0001 )
+         && (((ntohs(usDNS.usHeader.usFlags) & 0xfb7f) == 0x8100 ) ||
+                ((ntohs(usDNS.usHeader.usFlags) & 0xfb7f) == 0x8001 ) ||
+                              ((ntohs(usDNS.usHeader.usFlags) & 0xfb7f) == 0x0001 ))
         && ntohs(usDNS.usHeader.usQDCOUNT) >= 0
         && ntohs(usDNS.usHeader.usANCOUNT) >= 0) {
          cout << "malloc qusestion section1" << endl;
@@ -90,6 +91,7 @@ void Query::decode(const char* buffer, int size) throw() {
             usDNS.usQuestionSection =  (struct DNSQuestionSection*)malloc(usDNS.usHeader.usQDCOUNT 
                                               * sizeof(struct DNSQuestionSection)); 
         }
+        cout << "Question NUM:" <<usDNS.usHeader.usQDCOUNT << endl;
         for (int i = 0; i < usDNS.usHeader.usQDCOUNT; i++) {
             decode_qname(buffer,  usDNS.usQuestionSection[i].usNAME, 
                          &usDNS.usQuestionSection[i].NameLength); 
@@ -108,6 +110,7 @@ void Query::decode(const char* buffer, int size) throw() {
             usDNS.usAnswerSection = (struct DNSAnswerSection*)malloc(usDNS.usHeader.usANCOUNT 
                                             * sizeof(struct DNSAnswerSection)); 
         }
+         cout << "Question NUM:" <<usDNS.usHeader.usANCOUNT << endl;
         for (int i = 0; i < usDNS.usHeader.usANCOUNT ; i++) {
             decode_qname(buffer, usDNS.usAnswerSection[i].usNAME,
                          &usDNS.usAnswerSection[i].NameLength); 
