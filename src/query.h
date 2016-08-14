@@ -89,7 +89,7 @@ private:
     uint m_qType;
     uint m_qClass;
 #endif
-    void decode_qname(const char*& buffer, char *binaryName, unsigned int* binaryNameLength) throw();
+    void decode_qname(const char*& buffer,  char*& binaryName, unsigned int* binaryNameLength) throw();
 };
 }
 #endif	/* _DNS_REQUEST_H */

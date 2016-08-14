@@ -28,6 +28,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 #include <stdlib.h>
 #include <string.h>
 #include <arpa/inet.h>
@@ -44,7 +45,14 @@ string Query::asString() const throw() {
     text << Message::asString();
     for (int i = 0; i < usDNS.usHeader.usQDCOUNT; i++) {
         text << "   \tQuestionSection: " << i << "{" << endl;
-        text << "             \tQname: " << usDNS.usQuestionSection[i].usNAME << endl; 
+        text << "             \tQname: " << m_qName << endl; 
+        text << "             \tNameLength: " << usDNS.usQuestionSection[i].NameLength << endl;
+        text << "             \tQnameBinary: ";
+        for (int j = 0; j < usDNS.usQuestionSection[i].NameLength; j++) {
+            uchar c = usDNS.usQuestionSection[i].usNAME[j]; 
+            text << hex << setw(2) << int(c) << " " << dec;
+        }
+        text << endl << setfill(' ');
         text << "             \tQtype: " << usDNS.usQuestionSection[i].usTYPE << endl; 
         text << "            \tQclass: " << usDNS.usQuestionSection[i].usCLASS; 
         text << "   }" << endl;
@@ -85,31 +93,38 @@ void Query::decode(const char* buffer, int size) throw() {
         for (int i = 0; i < usDNS.usHeader.usQDCOUNT; i++) {
             decode_qname(buffer,  usDNS.usQuestionSection[i].usNAME, 
                          &usDNS.usQuestionSection[i].NameLength); 
+
+            for (int j = 0; j < usDNS.usQuestionSection[i].NameLength ;j++) {
+                uchar c = *(usDNS.usQuestionSection[i].usNAME + j);
+                 cout << hex << setw(2) << int(c) << " " << dec;
+            }
+            cout << endl;
             usDNS.usQuestionSection[i].usTYPE   = get16bits(buffer); 
             usDNS.usQuestionSection[i].usCLASS  = get16bits(buffer); 
         }
 
         //analyze answer section
         if (ntohs(usDNS.usHeader.usANCOUNT) != 0) {
-            //usDNS.usAnswerSection =  malloc(usDNS.usHeader.usANCOUNT 
-            //                                * sizeof(struct DNSAnswerSection)); 
+            usDNS.usAnswerSection = (struct DNSAnswerSection*)malloc(usDNS.usHeader.usANCOUNT 
+                                            * sizeof(struct DNSAnswerSection)); 
         }
         for (int i = 0; i < usDNS.usHeader.usANCOUNT ; i++) {
-            //decode_qname(buffer, usDNS.usAnswerSection[i].NameLength); 
-            //m_qType = get16bits(buffer);
-            //m_qClass = get16bits(buffer);
+            decode_qname(buffer, usDNS.usAnswerSection[i].usNAME,
+                         &usDNS.usAnswerSection[i].NameLength); 
+            usDNS.usAnswerSection[i].usTYPE = get16bits(buffer);
+            usDNS.usAnswerSection[i].usCLASS = get16bits(buffer);
         }
     }
 }
 
 void Query::decode_qname(const char*& buffer,
-                          char *binaryName, unsigned int* binaryNameLength) throw() { 
+                           char *&binaryName, unsigned int* binaryNameLength) throw() { 
 
     
     m_qName.clear();
     const char *decodeStr = buffer; 
     int length = 0;
-    binaryName  = (char *)malloc(sizeof(char)); 
+    binaryName  = (char *)malloc((*decodeStr+1)*sizeof(char)); 
     MSG("m_qName1");
     int tmpBinaryNameLength = 0;
     while ((length = *decodeStr) != 0) {
@@ -117,10 +132,13 @@ void Query::decode_qname(const char*& buffer,
             MSG("m_qName");
             m_qName.append(decodeStr + 1, length); 
             m_qName.append(1,'.');
-            binaryName  = (char* )realloc(binaryName,(length + 1)*sizeof(char));
             memcpy(binaryName + tmpBinaryNameLength , decodeStr, length + 1); 
+
             tmpBinaryNameLength += (length + 1);
+            binaryName  = (char* )realloc(binaryName,tmpBinaryNameLength*sizeof(char));
+
             decodeStr = decodeStr + length + 1;
+            *binaryNameLength = tmpBinaryNameLength;
         }
         else{ //compressed format,11000000 00000000, 
               //                  two bytes, 
@@ -128,6 +146,7 @@ void Query::decode_qname(const char*& buffer,
               //                  last 14bit means offset bits.    
         }
     }
+
 }
 
 #if 0
