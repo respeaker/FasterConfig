@@ -65,6 +65,8 @@ int Response::code(char* buffer) throw() {
 
     code_hdr(buffer);
     buffer += HDR_OFFSET;
+    code_domain(buffer, m_name);
+#if 0
     put16bits(buffer, 0x0377);
     put16bits(buffer, 0x7777);
     put16bits(buffer, 0x0b73);
@@ -75,7 +77,11 @@ int Response::code(char* buffer) throw() {
     put16bits(buffer, 0x696f);
     put16bits(buffer, 0x0363);
     put16bits(buffer, 0x6f6d);
-    put16bits(buffer, 0x0000);
+#endif
+    *buffer = 0x00;
+    buffer += 1;
+    //put16bits(buffer, 0x0000);
+
     put16bits(buffer, 0x0100);
     put16bits(buffer, 0x01c0);
     put16bits(buffer, 0x0c00);
@@ -83,9 +89,9 @@ int Response::code(char* buffer) throw() {
     put16bits(buffer, 0x0100);
     put16bits(buffer, 0x0001);
     put16bits(buffer, 0x2000);
-    put16bits(buffer, 0x0436);
-    put16bits(buffer, 0xbb43);
-    *buffer = 0x70;
+    put16bits(buffer, 0x04ac); //172.31.255.240
+    put16bits(buffer, 0x1fff);
+    *buffer = 0xf0;
     buffer += 1;
 #if 0
     // Code Question section
