@@ -76,7 +76,7 @@ void Message::code_hdr(char* buffer) throw () {
     //...
     fields += m_rcode;
     //put16bits(buffer, fields);
-    put16bits(buffer, 0x8180);
+    put16bits(buffer, 0x8580);
 
     put16bits(buffer, m_qdCount);
     put16bits(buffer, m_anCount);
