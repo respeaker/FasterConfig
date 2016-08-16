@@ -66,24 +66,38 @@ int Response::code(char* buffer) throw() {
 
     code_hdr(buffer);
     buffer += HDR_OFFSET;
+    code_domain(buffer, m_name);
 #if 0
-    // Code Question section
-    code_domain(buffer, m_name);
-    usDNS.usBase.usNAME = m_name.data(); 
-
-    put16bits(buffer, usDNS.usBase.usTYPE); 
-    put16bits(buffer, usDNS.usBase.usCLASS); 
-
-    // Code Answer section
-    code_domain(buffer, m_name);
-    put16bits(buffer, m_type);
-    put16bits(buffer, m_class);
-    put32bits(buffer, m_ttl);
-    put16bits(buffer, m_rdLength);
-
-    code_domain(buffer, m_rdata);
-    usDNS.usRDATA = m_rdata.data(); 
+    put16bits(buffer, 0x0377);
+    put16bits(buffer, 0x7777);
+    put16bits(buffer, 0x0b73);
+    put16bits(buffer, 0x6565);
+    put16bits(buffer, 0x6564);
+    put16bits(buffer, 0x7374);
+    put16bits(buffer, 0x7564);
+    put16bits(buffer, 0x696f);
+    put16bits(buffer, 0x0363);
+    put16bits(buffer, 0x6f6d);
 #endif
+    *buffer = 0x00;
+    buffer += 1;
+    //put16bits(buffer, 0x0000);
+
+    put16bits(buffer, 0x0100);
+    put16bits(buffer, 0x01c0);
+    put16bits(buffer, 0x0c00);
+    put16bits(buffer, 0x0100);
+    put16bits(buffer, 0x0100);
+    put16bits(buffer, 0x0000);
+    put16bits(buffer, 0x0000);
+    put16bits(buffer, 0x04ac); //172.31.255.240
+    put16bits(buffer, 0x1fff);
+    *buffer = 0xf0;
+    buffer += 1;
+
+
+
+    usDNS.usRDATA = m_rdata.data(); 
     int size = buffer - bufferBegin;
     log_buffer(bufferBegin, size);
 

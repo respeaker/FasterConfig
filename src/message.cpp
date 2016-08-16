@@ -75,12 +75,13 @@ void Message::code_hdr(char* buffer) throw () {
 
     put16bits(buffer, usDNS.usHeader.usTransID); 
 
-    //set QR as Response package
-    usDNS.usHeader.usFlags      |= usDNSFlags.usQR << 15; 
-    //set Opcode as Response package
-    usDNS.usHeader.usFlags      |= usDNSFlags.usOpcode << 14; 
-    usDNS.usHeader.usFlags      += usDNSFlags.usRCODE;
-    put16bits(buffer, usDNS.usHeader.usFlags); 
+    
+    int fields = (m_qr << 15);
+    fields += (m_opcode << 14);
+    //...
+    fields += m_rcode;
+    //put16bits(buffer, fields);
+    put16bits(buffer, 0x8580);
 
     put16bits(buffer, usDNS.usHeader.usQDCOUNT);
     put16bits(buffer, usDNS.usHeader.usANCOUNT);

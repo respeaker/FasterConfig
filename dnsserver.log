@@ -1,0 +1,1551 @@
+ ## Application::run()
+ ## Resolver::init() | filename: hosts
+ ## Resolver::add() | Record: 127.0.0.1-localhost
+ ## Resolver::add() | Record: 193.180.17.140-www.ericsson.es
+ ## Resolver::add() | Record: 209.85.227.103-www.google.com
+ ## Resolver::add() | Record: 65.55.21.250-www.microsoft.com
+ ## Resolver::add() | Record: 17.112.152.32-www.apple.com
+ ## Server::init()
+ ## Server::run()
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 31 bytes
+---------------------------------
+00: ee ba 01 00 00 01 00 00 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0xeeba
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: www.baidu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0xeeba
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: www.baidu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 47 bytes
+---------------------------------
+00: ee ba 81 80 00 01 00 01 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 c0 0c 00 01 00 01 00 00 01 
+40: 20 00 04 ac 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 31 bytes
+---------------------------------
+00: a6 53 01 00 00 01 00 00 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0xa653
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: www.baidu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0xa653
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: www.baidu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 47 bytes
+---------------------------------
+00: a6 53 81 80 00 01 00 01 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 c0 0c 00 01 00 01 00 00 01 
+40: 20 00 04 ac 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 32 bytes
+---------------------------------
+00: f4 0f 01 00 00 01 00 00 00 00 
+10: 00 00 03 77 77 77 06 67 6f 6f 
+20: 67 6c 65 03 63 6f 6d 00 00 01 
+30: 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0xf40f
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: www.google.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0xf40f
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: www.google.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 48 bytes
+---------------------------------
+00: f4 0f 81 80 00 01 00 01 00 00 
+10: 00 00 03 77 77 77 06 67 6f 6f 
+20: 67 6c 65 03 63 6f 6d 00 00 01 
+30: 00 01 c0 0c 00 01 00 01 00 00 
+40: 01 20 00 04 ac 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 32 bytes
+---------------------------------
+00: ba ba 01 00 00 01 00 00 00 00 
+10: 00 00 03 77 77 77 06 67 6f 6f 
+20: 67 6c 65 03 63 6f 6d 00 00 01 
+30: 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0xbaba
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: www.google.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0xbaba
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: www.google.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 48 bytes
+---------------------------------
+00: ba ba 81 80 00 01 00 01 00 00 
+10: 00 00 03 77 77 77 06 67 6f 6f 
+20: 67 6c 65 03 63 6f 6d 00 00 01 
+30: 00 01 c0 0c 00 01 00 01 00 00 
+40: 01 20 00 04 ac 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 31 bytes
+---------------------------------
+00: f9 7b 01 00 00 01 00 00 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0xf97b
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: www.baidu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0xf97b
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: www.baidu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 47 bytes
+---------------------------------
+00: f9 7b 81 80 00 01 00 01 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 c0 0c 00 01 00 01 00 00 01 
+40: 20 00 04 ac 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 31 bytes
+---------------------------------
+00: fb 34 01 00 00 01 00 00 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0xfb34
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: www.baidu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0xfb34
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: www.baidu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 47 bytes
+---------------------------------
+00: fb 34 81 80 00 01 00 01 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 c0 0c 00 01 00 01 00 00 01 
+40: 20 00 04 ac 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 31 bytes
+---------------------------------
+00: 09 c7 01 00 00 01 00 00 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x9c7
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: www.baidu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x9c7
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: www.baidu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 47 bytes
+---------------------------------
+00: 09 c7 81 80 00 01 00 01 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 c0 0c 00 01 00 01 00 00 01 
+40: 20 00 04 ac 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 39 bytes
+---------------------------------
+00: 16 05 01 00 00 01 00 00 00 00 
+10: 00 00 02 63 6e 07 61 72 63 68 
+20: 69 76 65 06 75 62 75 6e 74 75 
+30: 03 63 6f 6d 00 00 01 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x1605
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: cn.archive.ubuntu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x1605
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: cn.archive.ubuntu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 55 bytes
+---------------------------------
+00: 16 05 81 80 00 01 00 01 00 00 
+10: 00 00 02 63 6e 07 61 72 63 68 
+20: 69 76 65 06 75 62 75 6e 74 75 
+30: 03 63 6f 6d 00 00 01 00 01 c0 
+40: 0c 00 01 00 01 00 00 01 20 00 
+50: 04 ac 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 35 bytes
+---------------------------------
+00: 38 05 01 00 00 01 00 00 00 00 
+10: 00 00 06 65 78 74 72 61 73 06 
+20: 75 62 75 6e 74 75 03 63 6f 6d 
+30: 00 00 01 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x3805
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: extras.ubuntu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x3805
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: extras.ubuntu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 51 bytes
+---------------------------------
+00: 38 05 81 80 00 01 00 01 00 00 
+10: 00 00 06 65 78 74 72 61 73 06 
+20: 75 62 75 6e 74 75 03 63 6f 6d 
+30: 00 00 01 00 01 c0 0c 00 01 00 
+40: 01 00 00 01 20 00 04 ac 1f ff 
+50: f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 35 bytes
+---------------------------------
+00: 82 14 01 00 00 01 00 00 00 00 
+10: 00 00 06 65 78 74 72 61 73 06 
+20: 75 62 75 6e 74 75 03 63 6f 6d 
+30: 00 00 1c 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x8214
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: extras.ubuntu.com
+	Qtype: 28
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x8214
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: extras.ubuntu.com
+	type: 28
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 51 bytes
+---------------------------------
+00: 82 14 81 80 00 01 00 01 00 00 
+10: 00 00 06 65 78 74 72 61 73 06 
+20: 75 62 75 6e 74 75 03 63 6f 6d 
+30: 00 00 01 00 01 c0 0c 00 01 00 
+40: 01 00 00 01 20 00 04 ac 1f ff 
+50: f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 39 bytes
+---------------------------------
+00: 0b 15 01 00 00 01 00 00 00 00 
+10: 00 00 02 63 6e 07 61 72 63 68 
+20: 69 76 65 06 75 62 75 6e 74 75 
+30: 03 63 6f 6d 00 00 1c 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0xb15
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: cn.archive.ubuntu.com
+	Qtype: 28
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0xb15
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: cn.archive.ubuntu.com
+	type: 28
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 55 bytes
+---------------------------------
+00: 0b 15 81 80 00 01 00 01 00 00 
+10: 00 00 02 63 6e 07 61 72 63 68 
+20: 69 76 65 06 75 62 75 6e 74 75 
+30: 03 63 6f 6d 00 00 01 00 01 c0 
+40: 0c 00 01 00 01 00 00 01 20 00 
+50: 04 ac 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 37 bytes
+---------------------------------
+00: fc ab 01 00 00 01 00 00 00 00 
+10: 00 00 08 73 65 63 75 72 69 74 
+20: 79 06 75 62 75 6e 74 75 03 63 
+30: 6f 6d 00 00 01 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0xfcab
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: security.ubuntu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0xfcab
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: security.ubuntu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 53 bytes
+---------------------------------
+00: fc ab 81 80 00 01 00 01 00 00 
+10: 00 00 08 73 65 63 75 72 69 74 
+20: 79 06 75 62 75 6e 74 75 03 63 
+30: 6f 6d 00 00 01 00 01 c0 0c 00 
+40: 01 00 01 00 00 01 20 00 04 ac 
+50: 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 35 bytes
+---------------------------------
+00: 95 0a 01 00 00 01 00 00 00 00 
+10: 00 00 03 70 70 61 09 6c 61 75 
+20: 6e 63 68 70 61 64 03 6e 65 74 
+30: 00 00 01 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x950a
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: ppa.launchpad.net
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x950a
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: ppa.launchpad.net
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 51 bytes
+---------------------------------
+00: 95 0a 81 80 00 01 00 01 00 00 
+10: 00 00 03 70 70 61 09 6c 61 75 
+20: 6e 63 68 70 61 64 03 6e 65 74 
+30: 00 00 01 00 01 c0 0c 00 01 00 
+40: 01 00 00 01 20 00 04 ac 1f ff 
+50: f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 37 bytes
+---------------------------------
+00: 98 5d 01 00 00 01 00 00 00 00 
+10: 00 00 08 73 65 63 75 72 69 74 
+20: 79 06 75 62 75 6e 74 75 03 63 
+30: 6f 6d 00 00 1c 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x985d
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: security.ubuntu.com
+	Qtype: 28
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x985d
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: security.ubuntu.com
+	type: 28
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 53 bytes
+---------------------------------
+00: 98 5d 81 80 00 01 00 01 00 00 
+10: 00 00 08 73 65 63 75 72 69 74 
+20: 79 06 75 62 75 6e 74 75 03 63 
+30: 6f 6d 00 00 01 00 01 c0 0c 00 
+40: 01 00 01 00 00 01 20 00 04 ac 
+50: 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 35 bytes
+---------------------------------
+00: 39 1a 01 00 00 01 00 00 00 00 
+10: 00 00 03 70 70 61 09 6c 61 75 
+20: 6e 63 68 70 61 64 03 6e 65 74 
+30: 00 00 1c 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x391a
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: ppa.launchpad.net
+	Qtype: 28
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x391a
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: ppa.launchpad.net
+	type: 28
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 51 bytes
+---------------------------------
+00: 39 1a 81 80 00 01 00 01 00 00 
+10: 00 00 03 70 70 61 09 6c 61 75 
+20: 6e 63 68 70 61 64 03 6e 65 74 
+30: 00 00 01 00 01 c0 0c 00 01 00 
+40: 01 00 00 01 20 00 04 ac 1f ff 
+50: f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 35 bytes
+---------------------------------
+00: 95 0a 01 00 00 01 00 00 00 00 
+10: 00 00 03 70 70 61 09 6c 61 75 
+20: 6e 63 68 70 61 64 03 6e 65 74 
+30: 00 00 01 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x950a
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: ppa.launchpad.net
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x950a
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: ppa.launchpad.net
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 51 bytes
+---------------------------------
+00: 95 0a 81 80 00 01 00 01 00 00 
+10: 00 00 03 70 70 61 09 6c 61 75 
+20: 6e 63 68 70 61 64 03 6e 65 74 
+30: 00 00 01 00 01 c0 0c 00 01 00 
+40: 01 00 00 01 20 00 04 ac 1f ff 
+50: f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 35 bytes
+---------------------------------
+00: 38 05 01 00 00 01 00 00 00 00 
+10: 00 00 06 65 78 74 72 61 73 06 
+20: 75 62 75 6e 74 75 03 63 6f 6d 
+30: 00 00 01 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x3805
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: extras.ubuntu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x3805
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: extras.ubuntu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 51 bytes
+---------------------------------
+00: 38 05 81 80 00 01 00 01 00 00 
+10: 00 00 06 65 78 74 72 61 73 06 
+20: 75 62 75 6e 74 75 03 63 6f 6d 
+30: 00 00 01 00 01 c0 0c 00 01 00 
+40: 01 00 00 01 20 00 04 ac 1f ff 
+50: f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 37 bytes
+---------------------------------
+00: fc ab 01 00 00 01 00 00 00 00 
+10: 00 00 08 73 65 63 75 72 69 74 
+20: 79 06 75 62 75 6e 74 75 03 63 
+30: 6f 6d 00 00 01 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0xfcab
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: security.ubuntu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0xfcab
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: security.ubuntu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 53 bytes
+---------------------------------
+00: fc ab 81 80 00 01 00 01 00 00 
+10: 00 00 08 73 65 63 75 72 69 74 
+20: 79 06 75 62 75 6e 74 75 03 63 
+30: 6f 6d 00 00 01 00 01 c0 0c 00 
+40: 01 00 01 00 00 01 20 00 04 ac 
+50: 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 35 bytes
+---------------------------------
+00: 39 1a 01 00 00 01 00 00 00 00 
+10: 00 00 03 70 70 61 09 6c 61 75 
+20: 6e 63 68 70 61 64 03 6e 65 74 
+30: 00 00 1c 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x391a
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: ppa.launchpad.net
+	Qtype: 28
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x391a
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: ppa.launchpad.net
+	type: 28
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 51 bytes
+---------------------------------
+00: 39 1a 81 80 00 01 00 01 00 00 
+10: 00 00 03 70 70 61 09 6c 61 75 
+20: 6e 63 68 70 61 64 03 6e 65 74 
+30: 00 00 01 00 01 c0 0c 00 01 00 
+40: 01 00 00 01 20 00 04 ac 1f ff 
+50: f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 35 bytes
+---------------------------------
+00: 82 14 01 00 00 01 00 00 00 00 
+10: 00 00 06 65 78 74 72 61 73 06 
+20: 75 62 75 6e 74 75 03 63 6f 6d 
+30: 00 00 1c 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x8214
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: extras.ubuntu.com
+	Qtype: 28
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x8214
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: extras.ubuntu.com
+	type: 28
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 51 bytes
+---------------------------------
+00: 82 14 81 80 00 01 00 01 00 00 
+10: 00 00 06 65 78 74 72 61 73 06 
+20: 75 62 75 6e 74 75 03 63 6f 6d 
+30: 00 00 01 00 01 c0 0c 00 01 00 
+40: 01 00 00 01 20 00 04 ac 1f ff 
+50: f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 37 bytes
+---------------------------------
+00: 98 5d 01 00 00 01 00 00 00 00 
+10: 00 00 08 73 65 63 75 72 69 74 
+20: 79 06 75 62 75 6e 74 75 03 63 
+30: 6f 6d 00 00 1c 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x985d
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: security.ubuntu.com
+	Qtype: 28
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x985d
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: security.ubuntu.com
+	type: 28
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 53 bytes
+---------------------------------
+00: 98 5d 81 80 00 01 00 01 00 00 
+10: 00 00 08 73 65 63 75 72 69 74 
+20: 79 06 75 62 75 6e 74 75 03 63 
+30: 6f 6d 00 00 01 00 01 c0 0c 00 
+40: 01 00 01 00 00 01 20 00 04 ac 
+50: 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 39 bytes
+---------------------------------
+00: 16 05 01 00 00 01 00 00 00 00 
+10: 00 00 02 63 6e 07 61 72 63 68 
+20: 69 76 65 06 75 62 75 6e 74 75 
+30: 03 63 6f 6d 00 00 01 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x1605
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: cn.archive.ubuntu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x1605
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: cn.archive.ubuntu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 55 bytes
+---------------------------------
+00: 16 05 81 80 00 01 00 01 00 00 
+10: 00 00 02 63 6e 07 61 72 63 68 
+20: 69 76 65 06 75 62 75 6e 74 75 
+30: 03 63 6f 6d 00 00 01 00 01 c0 
+40: 0c 00 01 00 01 00 00 01 20 00 
+50: 04 ac 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 39 bytes
+---------------------------------
+00: 0b 15 01 00 00 01 00 00 00 00 
+10: 00 00 02 63 6e 07 61 72 63 68 
+20: 69 76 65 06 75 62 75 6e 74 75 
+30: 03 63 6f 6d 00 00 1c 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0xb15
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: cn.archive.ubuntu.com
+	Qtype: 28
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0xb15
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: cn.archive.ubuntu.com
+	type: 28
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 55 bytes
+---------------------------------
+00: 0b 15 81 80 00 01 00 01 00 00 
+10: 00 00 02 63 6e 07 61 72 63 68 
+20: 69 76 65 06 75 62 75 6e 74 75 
+30: 03 63 6f 6d 00 00 01 00 01 c0 
+40: 0c 00 01 00 01 00 00 01 20 00 
+50: 04 ac 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 35 bytes
+---------------------------------
+00: 95 0a 01 00 00 01 00 00 00 00 
+10: 00 00 03 70 70 61 09 6c 61 75 
+20: 6e 63 68 70 61 64 03 6e 65 74 
+30: 00 00 01 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x950a
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: ppa.launchpad.net
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x950a
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: ppa.launchpad.net
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 51 bytes
+---------------------------------
+00: 95 0a 81 80 00 01 00 01 00 00 
+10: 00 00 03 70 70 61 09 6c 61 75 
+20: 6e 63 68 70 61 64 03 6e 65 74 
+30: 00 00 01 00 01 c0 0c 00 01 00 
+40: 01 00 00 01 20 00 04 ac 1f ff 
+50: f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 35 bytes
+---------------------------------
+00: 38 05 01 00 00 01 00 00 00 00 
+10: 00 00 06 65 78 74 72 61 73 06 
+20: 75 62 75 6e 74 75 03 63 6f 6d 
+30: 00 00 01 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x3805
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: extras.ubuntu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x3805
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: extras.ubuntu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 51 bytes
+---------------------------------
+00: 38 05 81 80 00 01 00 01 00 00 
+10: 00 00 06 65 78 74 72 61 73 06 
+20: 75 62 75 6e 74 75 03 63 6f 6d 
+30: 00 00 01 00 01 c0 0c 00 01 00 
+40: 01 00 00 01 20 00 04 ac 1f ff 
+50: f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 37 bytes
+---------------------------------
+00: fc ab 01 00 00 01 00 00 00 00 
+10: 00 00 08 73 65 63 75 72 69 74 
+20: 79 06 75 62 75 6e 74 75 03 63 
+30: 6f 6d 00 00 01 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0xfcab
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: security.ubuntu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0xfcab
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: security.ubuntu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 53 bytes
+---------------------------------
+00: fc ab 81 80 00 01 00 01 00 00 
+10: 00 00 08 73 65 63 75 72 69 74 
+20: 79 06 75 62 75 6e 74 75 03 63 
+30: 6f 6d 00 00 01 00 01 c0 0c 00 
+40: 01 00 01 00 00 01 20 00 04 ac 
+50: 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 39 bytes
+---------------------------------
+00: 16 05 01 00 00 01 00 00 00 00 
+10: 00 00 02 63 6e 07 61 72 63 68 
+20: 69 76 65 06 75 62 75 6e 74 75 
+30: 03 63 6f 6d 00 00 01 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x1605
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: cn.archive.ubuntu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x1605
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: cn.archive.ubuntu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 55 bytes
+---------------------------------
+00: 16 05 81 80 00 01 00 01 00 00 
+10: 00 00 02 63 6e 07 61 72 63 68 
+20: 69 76 65 06 75 62 75 6e 74 75 
+30: 03 63 6f 6d 00 00 01 00 01 c0 
+40: 0c 00 01 00 01 00 00 01 20 00 
+50: 04 ac 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 35 bytes
+---------------------------------
+00: 39 1a 01 00 00 01 00 00 00 00 
+10: 00 00 03 70 70 61 09 6c 61 75 
+20: 6e 63 68 70 61 64 03 6e 65 74 
+30: 00 00 1c 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x391a
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: ppa.launchpad.net
+	Qtype: 28
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x391a
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: ppa.launchpad.net
+	type: 28
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 51 bytes
+---------------------------------
+00: 39 1a 81 80 00 01 00 01 00 00 
+10: 00 00 03 70 70 61 09 6c 61 75 
+20: 6e 63 68 70 61 64 03 6e 65 74 
+30: 00 00 01 00 01 c0 0c 00 01 00 
+40: 01 00 00 01 20 00 04 ac 1f ff 
+50: f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 37 bytes
+---------------------------------
+00: 98 5d 01 00 00 01 00 00 00 00 
+10: 00 00 08 73 65 63 75 72 69 74 
+20: 79 06 75 62 75 6e 74 75 03 63 
+30: 6f 6d 00 00 1c 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x985d
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: security.ubuntu.com
+	Qtype: 28
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x985d
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: security.ubuntu.com
+	type: 28
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 53 bytes
+---------------------------------
+00: 98 5d 81 80 00 01 00 01 00 00 
+10: 00 00 08 73 65 63 75 72 69 74 
+20: 79 06 75 62 75 6e 74 75 03 63 
+30: 6f 6d 00 00 01 00 01 c0 0c 00 
+40: 01 00 01 00 00 01 20 00 04 ac 
+50: 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 35 bytes
+---------------------------------
+00: 82 14 01 00 00 01 00 00 00 00 
+10: 00 00 06 65 78 74 72 61 73 06 
+20: 75 62 75 6e 74 75 03 63 6f 6d 
+30: 00 00 1c 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x8214
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: extras.ubuntu.com
+	Qtype: 28
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x8214
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: extras.ubuntu.com
+	type: 28
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 51 bytes
+---------------------------------
+00: 82 14 81 80 00 01 00 01 00 00 
+10: 00 00 06 65 78 74 72 61 73 06 
+20: 75 62 75 6e 74 75 03 63 6f 6d 
+30: 00 00 01 00 01 c0 0c 00 01 00 
+40: 01 00 00 01 20 00 04 ac 1f ff 
+50: f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 39 bytes
+---------------------------------
+00: 0b 15 01 00 00 01 00 00 00 00 
+10: 00 00 02 63 6e 07 61 72 63 68 
+20: 69 76 65 06 75 62 75 6e 74 75 
+30: 03 63 6f 6d 00 00 1c 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0xb15
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: cn.archive.ubuntu.com
+	Qtype: 28
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0xb15
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: cn.archive.ubuntu.com
+	type: 28
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 55 bytes
+---------------------------------
+00: 0b 15 81 80 00 01 00 01 00 00 
+10: 00 00 02 63 6e 07 61 72 63 68 
+20: 69 76 65 06 75 62 75 6e 74 75 
+30: 03 63 6f 6d 00 00 01 00 01 c0 
+40: 0c 00 01 00 01 00 00 01 20 00 
+50: 04 ac 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 31 bytes
+---------------------------------
+00: 12 19 01 00 00 01 00 00 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0x1219
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: www.baidu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0x1219
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: www.baidu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 47 bytes
+---------------------------------
+00: 12 19 81 80 00 01 00 01 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 c0 0c 00 01 00 01 00 00 01 
+40: 20 00 04 ac 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 31 bytes
+---------------------------------
+00: a6 3e 01 00 00 01 00 00 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0xa63e
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: www.baidu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0xa63e
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: www.baidu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 47 bytes
+---------------------------------
+00: a6 3e 81 80 00 01 00 01 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 c0 0c 00 01 00 01 00 00 01 
+40: 20 00 04 ac 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 31 bytes
+---------------------------------
+00: a6 68 01 00 00 01 00 00 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0xa668
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: www.baidu.com
+	Qtype: 1
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0xa668
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: www.baidu.com
+	type: 1
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 47 bytes
+---------------------------------
+00: a6 68 81 80 00 01 00 01 00 00 
+10: 00 00 03 77 77 77 05 62 61 69 
+20: 64 75 03 63 6f 6d 00 00 01 00 
+30: 01 c0 0c 00 01 00 01 00 00 01 
+40: 20 00 04 ac 1f ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 46 bytes
+---------------------------------
+00: ff 9a 01 00 00 01 00 00 00 00 
+10: 00 00 03 31 35 36 03 31 39 39 
+20: 03 31 36 38 03 31 39 32 07 69 
+30: 6e 2d 61 64 64 72 04 61 72 70 
+40: 61 00 00 0c 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0xff9a
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: 156.199.168.192.in-addr.arpa
+	Qtype: 12
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0xff9a
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: 156.199.168.192.in-addr.arpa
+	type: 12
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 62 bytes
+---------------------------------
+00: ff 9a 81 80 00 01 00 01 00 00 
+10: 00 00 03 31 35 36 03 31 39 39 
+20: 03 31 36 38 03 31 39 32 07 69 
+30: 6e 2d 61 64 64 72 04 61 72 70 
+40: 61 00 00 01 00 01 c0 0c 00 01 
+50: 00 01 00 00 01 20 00 04 ac 1f 
+60: ff f0 
+---------------------------------
+ ## Query::decode()
+ ## Message::log_buffer()
+size: 46 bytes
+---------------------------------
+00: ff 9a 01 00 00 01 00 00 00 00 
+10: 00 00 03 31 35 36 03 31 39 39 
+20: 03 31 36 38 03 31 39 32 07 69 
+30: 6e 2d 61 64 64 72 04 61 72 70 
+40: 61 00 00 0c 00 01 
+---------------------------------
+ ## Resolver::process()
+QUERY { ID: 0xff9a
+	fields: [ QR: 0 opCode: 0 ]
+	QDcount: 1
+	ANcount: 0
+	NScount: 0
+	ARcount: 0
+	Qname: 156.199.168.192.in-addr.arpa
+	Qtype: 12
+	Qclass: 1 }
+ ## Resolver::process()
+RESPONSE { ID: 0xff9a
+	fields: [ QR: 1 opCode: 0 ]
+	QDcount: 1
+	ANcount: 1
+	NScount: 0
+	ARcount: 0
+	name: 156.199.168.192.in-addr.arpa
+	type: 12
+	class: 1
+	ttl: 0
+	rdLength: 15
+	rdata: 112.80.248.73 }
+ ## Response::code()
+ ## Message::log_buffer()
+size: 62 bytes
+---------------------------------
+00: ff 9a 81 80 00 01 00 01 00 00 
+10: 00 00 03 31 35 36 03 31 39 39 
+20: 03 31 36 38 03 31 39 32 07 69 
+30: 6e 2d 61 64 64 72 04 61 72 70 
+40: 61 00 00 01 00 01 c0 0c 00 01 
+50: 00 01 00 00 01 20 00 04 ac 1f 
+60: ff f0 
+---------------------------------

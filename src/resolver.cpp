@@ -175,7 +175,8 @@ void Resolver::process(const Query& query, Response& response) throw () {
 #if 0
     string qName = query.getQName();
     string ipAddress = convert(qName);
-    string domainName = find( ipAddress );
+    //string domainName = find( ipAddress );
+    string domainName = "112.80.248.73";
 
     response.setID( query.getID() );
     response.setQdCount(1);
@@ -205,7 +206,7 @@ void Resolver::process(const Query& query, Response& response) throw () {
 }
 
 string Resolver::convert(const std::string& qName) throw() {
-
+#if 0
     int pos = qName.find(".in-addr.arpa");
     if (pos == string::npos) return string();
 
@@ -218,7 +219,8 @@ string Resolver::convert(const std::string& qName) throw() {
         tmp.erase(pos, tmp.size());
     }
     ipAddress.append(tmp, 0, tmp.size());
-
+#endif
+    string ipAddress = "172.16.1.1";
     return ipAddress;
 }
 
