@@ -28,13 +28,13 @@
 #include "DNSLookup.h"
 
 int main(void) {
-    char szDomainName[] = "www.seeedstudio.com";
+    char szDomainName[] = "www.baidu.com";
     std::vector<ULONG> veculIPList;
     std::vector<std::string> vecstrIPList;
     std::vector<std::string> vecCNameList;
     ULONG ulTimeSpent = 0;
     CDNSLookup dnslookup;
-    BOOL bRet = dnslookup.DNSLookup(inet_addr("114.114.114.114"), 
+    BOOL bRet = dnslookup.DNSLookup(inet_addr("127.0.1.1"), 
                                     szDomainName, 
                                     &vecstrIPList, 
                                     &vecCNameList, 
