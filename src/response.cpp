@@ -87,8 +87,8 @@ int Response::code(char* buffer) throw() {
     put16bits(buffer, 0x0c00);
     put16bits(buffer, 0x0100);
     put16bits(buffer, 0x0100);
-    put16bits(buffer, 0x0001);
-    put16bits(buffer, 0x2000);
+    put16bits(buffer, 0x0000);
+    put16bits(buffer, 0x0000);
     put16bits(buffer, 0x04ac); //172.31.255.240
     put16bits(buffer, 0x1fff);
     *buffer = 0xf0;
