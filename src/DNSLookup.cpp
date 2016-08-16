@@ -107,7 +107,8 @@ BOOL CDNSLookup::DNSLookupCore(ULONG ulDNSServerIP, char *szDomainName, std::vec
     sockaddr_in sockAddrDNSServer;
     sockAddrDNSServer.sin_family = AF_INET;
     sockAddrDNSServer.sin_addr.s_addr = ulDNSServerIP;
-    sockAddrDNSServer.sin_port = htons(DNS_PORT);
+    //sockAddrDNSServer.sin_port = htons(DNS_PORT);
+    sockAddrDNSServer.sin_port = htons(9000);
 
     //DNS查询与解析
     if (!SendDNSRequest(sockAddrDNSServer, szDomainName)
