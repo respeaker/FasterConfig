@@ -38,17 +38,16 @@ using namespace dns;
 string Response::asString() const throw() {
 
     ostringstream text;
-#if 0
     text << endl << "RESPONSE { ";
     text << Message::asString();
 
-    text << "\tname: " << usDNS.usBase.usNAME << endl; 
-    text << "\ttype: " <<  usDNS.usBase.usTYPE << endl; 
-    text << "\tclass: " << usDNS.usBase.usCLASS << endl; 
-    text << "\tttl: " << usDNS.usTTL << endl; 
-    text << "\trdLength: " << usDNS.usRDLENGT << endl; 
-    text << "\trdata: " << usDNS.usRDATA << " }" << dec; 
-#endif
+    text << "\tname: " << m_name << endl;
+    text << "\ttype: " << m_type << endl;
+    text << "\tclass: " << m_class << endl;
+    text << "\tttl: " << m_ttl << endl;
+    text << "\trdLength: " << m_rdLength << endl;
+    text << "\trdata: " << m_rdata << " }" << dec;
+
     return text.str();
 }
 
@@ -66,6 +65,11 @@ int Response::code(char* buffer) throw() {
 
     code_hdr(buffer);
     buffer += HDR_OFFSET;
+#if 0
+    if (! m_name.compare(m_name.length() - 4 ,4,".lan")) {
+        m_name = m_name.erase(m_name.length() - 4,4);
+    }
+#endif
     code_domain(buffer, m_name);
 #if 0
     put16bits(buffer, 0x0377);
@@ -90,14 +94,30 @@ int Response::code(char* buffer) throw() {
     put16bits(buffer, 0x0100);
     put16bits(buffer, 0x0000);
     put16bits(buffer, 0x0000);
+
+    put16bits(buffer, 0x04c0);
+    put16bits(buffer, 0xa864);
+    *buffer = 0x01;
+#if 0
     put16bits(buffer, 0x04ac); //172.31.255.240
     put16bits(buffer, 0x1fff);
     *buffer = 0xf0;
+#endif
     buffer += 1;
+#if 0
+    // Code Question section
+    code_domain(buffer, m_name);
+    put16bits(buffer, m_type);
+    put16bits(buffer, m_class);
 
-
-
-    usDNS.usRDATA = m_rdata.data(); 
+    // Code Answer section
+    code_domain(buffer, m_name);
+    put16bits(buffer, m_type);
+    put16bits(buffer, m_class);
+    put32bits(buffer, m_ttl);
+    put16bits(buffer, m_rdLength);
+    code_domain(buffer, m_rdata);
+#endif    
     int size = buffer - bufferBegin;
     log_buffer(bufferBegin, size);
 
