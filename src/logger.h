@@ -32,7 +32,16 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+
 #include <stdio.h>
+#include <errno.h>
+#include <syslog.h>
+#include <stdarg.h>
+#include <time.h>
+#include <unistd.h>
+#include <signal.h>
+
+
 namespace dns {
 #define FASTERCONFIG_DEBUG
 #ifdef FASTERCONFIG_DEBUG
@@ -40,6 +49,25 @@ namespace dns {
 #else
 #define MSG(fmt, args...) { }
 #endif
+
+typedef struct _debug_conf {
+    int debuglevel;      /**< @brief Debug information verbosity */
+    int log_stderr;      /**< @brief Output log to stdout */
+    int log_syslog;      /**< @brief Output log to syslog */
+    int syslog_facility; /**< @brief facility to use when using syslog for logging */
+} debugconf_t;
+
+extern debugconf_t debugconf;
+
+/** Used to output messages.
+ * The messages will include the filename and line number, and will be sent to syslog if so configured in the config file 
+ * @param level Debug level
+ * @param format... sprintf like format string
+ */
+#define debug(level, format...) logger._debug(__FILE__, __LINE__, level, format)
+
+
+
 /**
  *  Logger is a helper class that allows to trace text messages to a log file.
  *  It is a single instance class or also known as Singleton.
@@ -82,12 +110,15 @@ public:
      */
     void error(std::string& text) throw();
 
+    /** @internal */
+    void _debug(const char *, int, int, const char *, ...);
+    debugconf_t debugconf;
 protected:
     /**
      *  Constructor.
      *  Creates the one and only Logger object.
      */
-    Logger() { }
+    Logger() {}
 
     /**
      *  Destructor
