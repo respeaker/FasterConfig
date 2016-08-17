@@ -1,13 +1,6 @@
 /*
   2016 Copyright (c) Seeed Technology Inc.  All right reserved.
   Author:Baozhu Zuo
-  suli is designed for the purpose of reusing the high level implementation
-  of each libraries for different platforms out of the hardware layer.
-  suli2 is the new reversion of original suli. There're lot of improvements upon
-  the previous version. Currently, it can be treated as the internal strategy for
-  quick library development of seeed. But always welcome the community to
-  follow the basis of suli to contribute grove libraries.
-  The MIT License (MIT)
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
