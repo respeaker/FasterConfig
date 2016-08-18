@@ -1,13 +1,7 @@
+
 /*
   2016 Copyright (c) Seeed Technology Inc.  All right reserved.
   Author:Baozhu Zuo
-  suli is designed for the purpose of reusing the high level implementation
-  of each libraries for different platforms out of the hardware layer.
-  suli2 is the new reversion of original suli. There're lot of improvements upon
-  the previous version. Currently, it can be treated as the internal strategy for
-  quick library development of seeed. But always welcome the community to
-  follow the basis of suli to contribute grove libraries.
-  The MIT License (MIT)
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
@@ -44,6 +38,7 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <signal.h>
+
 
 
 #include  "logger.h"
@@ -83,6 +78,10 @@
 #define HTTP_ACL_DENY		2
 
 #define HAVE_STDARG_H       1
+
+
+#define LEVEL_ERROR	"error"
+
 
 /* Overencodes */
 #define URL_XALPHAS     (unsigned char) 1
@@ -150,6 +149,9 @@ typedef struct {
 } request;
 
 
+typedef void(*callBackTypeA)(); // void (*)())
+typedef void(*callBackTypeB)(httpd *, request *); //void (*)(httpd *, request *))
+typedef void(*callBackTypeC)(httpd *, request *, int); //void (*)(httpd *, request *, int))
 class Httpd {
 public:
     /**
@@ -158,131 +160,80 @@ public:
     virtual ~Httpd();
     Httpd(const std::string &ip_address, int port);
     int start();
-    int httpdAddCContent (httpd *, char *, char *, int, int (*)(), 
-                          void (Httpd::*func)(httpd *, request *));
-    int httpdAddFileContent (httpd *, char *, char *, int, int (*)(), char *);
-    int httpdAddStaticContent (httpd *, char *, char *, int, int (*)(), char *);
-    int httpdAddWildcardContent (httpd *, char *, int (*)(), char *);
-    int httpdAddCWildcardContent (httpd *, char *, int (*)(), void (*)());
-    int httpdAddVariable (request *, const char *, const char *);
-    int httpdSetVariableValue (request *, const char *, const char *);
-    request *httpdGetConnection (httpd *, struct timeval *);
-    int httpdReadRequest (httpd *, request *);
-    int httpdCheckAcl (httpd *, request *, httpAcl *);
-    int httpdAuthenticate (request *, const char *);
-    void httpdForceAuthenticate (request *, const char *);
-    int httpdSetErrorFunction (httpd *, int, void (Httpd::*func)(httpd *, request *, int));
-
-    char *httpdRequestMethodName (request *);
-    char *httpdUrlEncode (const char *);
-
-    void httpdAddHeader (request *, const char *);
-    void httpdSetContentType (request *, const char *);
-    void httpdSetResponse (request *, const char *);
-    void httpdEndRequest (request *);
-
+    int httpdAddCContent (httpd *, const char *,const char *, int, int (*)(), 
+                          void (*function) ());
     httpd *httpdCreate (char *, int );
-    void httpdFreeVariables (request *);
-    void httpdDumpVariables (request *);
-    void httpdOutput (request *, const char *);
-    void httpdPrintf (request *, const char *, ...);
-    void httpdProcessRequest (httpd *, request *);
-    void httpdSendHeaders (request *);
-    void httpdSendFile (httpd *, request *, const char *);
-    void httpdSetFileBase (httpd *, const char *);
-    void httpdSetCookie (request *, const char *, const char *);
+    request *httpdGetConnection (httpd *, struct timeval *);
+    httpDir* _httpd_findContentDir(httpd *server, char *dir, int createFlag);
+    void send_http_page(request *r, const char *title, const char *message);
+    int httpdAddVariable(request *r, const char *name, const char *value);
+    void httpdOutput(request *r, const char *msg);
+    httpVar* httpdGetVariableByName(request *r, const char *name);
+    int _httpd_net_write(int sock, const char *buf, int len);
+    void httpdSendHeaders(request *r);
+    void _httpd_sendHeaders(request *r, int contentLength, int modTime);
+    void _httpd_formatTimeString(char *ptr, int clock);
+    int httpdCheckAcl (httpd *, request *, httpAcl *);
+    int httpdReadRequest(httpd *server, request *r);
+    int _httpd_readLine(request *r, char *destBuf, int len);
+    int _httpd_readChar(request *r, char *cp);
+    void _httpd_writeErrorLog(httpd *server, request *r, char *level,  const char *message);
+    void _httpd_sanitiseUrl(char *url);
+    void _httpd_storeData(request *r, char *query);
+    char* _httpd_unescape(char *str);
+    char _httpd_from_hex(char c);
+    int _httpd_net_read(int sock, char *buf, int len);
+    int _httpd_decode(char *bufcoded, char *bufplain, int outbufsize);
+    void httpdProcessRequest(httpd *server, request *r);
+    void _httpd_send404(httpd *server, request *r);
+    void _httpd_writeAccessLog(httpd *server, request *r);
+    httpContent* _httpd_findContentEntry(request *r, httpDir *dir, char *entryName);
+    void _httpd_sendStatic(httpd *server, request *r, char *data);
+    int _httpd_checkLastModified(request *r, int modTime);
+    void _httpd_sendFile(httpd *server, request *r, const char *path);
+    void _httpd_catFile(request *r, const char *path);
+    int _httpd_sendDirectoryEntry(httpd *server, request *r, httpContent *entry, char *entryName);
 
-    void httpdSetErrorLog (httpd *, FILE *);
-    void httpdSetAccessLog (httpd *, FILE *);
-    void httpdSetDefaultAcl (httpd *, httpAcl *);
+    const char* httpdRequestMethodName(request *r);
+    void _httpd_send304(httpd *server, request *r);
+    void _httpd_send403(httpd *server, request *r);
 
-    httpVar *httpdGetVariableByName (request *, const char *);
-    httpVar *httpdGetVariableByPrefix (request *, const char *);
-    httpVar *httpdGetVariableByPrefixedName (request *, const char *, const char *);
-    httpVar *httpdGetNextVariableByPrefix (httpVar *, const char *);
-
-    httpAcl *httpdAddAcl (httpd *, httpAcl *, char *, int);
+    void httpdSetResponse(request *r, const char *msg);
+    void _httpd_sendText(request *r, const char *msg);
 
 
-    
     /**@brief Callback for libhttpd, main entry point for captive portal */
     void http_callback_404(httpd *, request *, int);
     /**@brief Callback for libhttpd */
     void http_callback_wifidog(httpd *, request *);
-    /**@brief Callback for libhttpd */
-    void http_callback_about(httpd *, request *);
-    /**@brief Callback for libhttpd */
-    void http_callback_status(httpd *, request *);
-    /**@brief Callback for libhttpd, main entry point post login for auth confirmation */
-    void http_callback_auth(httpd *, request *);
-    /**@brief Callback for libhttpd, disconnect user from network */
-    void http_callback_disconnect(httpd *, request *);
 
-    /** @brief Sends a HTML page to web browser */
-    void send_http_page(request *, const char *, const char* );
 
-    /** @brief Sends a redirect to the web browser */
-    void http_send_redirect(request *, const char *, const char *);
-    /** @brief Convenience function to redirect the web browser to the authe server */
-    void http_send_redirect_to_auth(request *, const char *, const char *);
+    char* arp_get(const char *req_ip);
 
-private:
-    char *_httpd_unescape (char *);
-    char *_httpd_escape (const char *);
-    char _httpd_from_hex (char);
+    int scanCidr (char *val, u_int *result, u_int *length);
+    void httpdSetDefaultAcl(httpd *server, httpAcl *acl);
+    httpAcl * httpdAddAcl(httpd *server, httpAcl *acl, char *cidr, int action);
+    int _isInCidrBlock(httpd *server, request *r, int addr1, int len1, int addr2, int len2);
 
-    void _httpd_catFile (request *, const char *);
-    void _httpd_send403 (httpd *, request *);
-    void _httpd_send404 (httpd *, request *);
-    void _httpd_send304 (httpd *, request *);
-    void _httpd_sendText (request *, char *);
-    void _httpd_sendFile (httpd *, request *, char *);
-    void _httpd_sendStatic (httpd *, request *, char *);
-    void _httpd_sendHeaders (request *, int, int);
-        
-    void _httpd_sanitiseUrl (char *);
-    void _httpd_freeVariables (httpVar *);
-    void _httpd_formatTimeString (char *, int);
-    void _httpd_storeData (request *, char *);
-    void _httpd_writeAccessLog (httpd *, request *);
-    void _httpd_writeErrorLog (httpd *, request *, char *, char *);
-
-    int _httpd_net_read (int, char *, int);
-    int _httpd_net_write (int, char *, int);
-    int _httpd_readBuf (request *, char *, int);
-    int _httpd_readChar (request *, char *);
-    int _httpd_readLine (request *, char *, int);
-    int _httpd_checkLastModified (request *, int);
-    int _httpd_sendDirectoryEntry (httpd *, request * r, httpContent *, char *);
-
-    httpContent *_httpd_findContentEntry (request *, httpDir *, char *);
-    httpDir *_httpd_findContentDir (httpd *, char *, int);
+    void _httpd_freeVariables(httpVar *var);
+    void httpdFreeVariables(request *r);
+    void httpdEndRequest(request *r);
 private:
     /* The internal web server */
     httpd * webserver = NULL;
-    Logger& logger = Logger::instance();
+    Logger *logger;
     char* gw_address;
     int gw_port;
 
+    static void* thread_httpd(void *args);
 
+    char hex[32] ;
 
-    char *hex = "0123456789ABCDEF";
+    char    LIBHTTPD_VERSION[32] ;
+    char    LIBHTTPD_VENDOR[32] ;
+    unsigned char isAcceptable[96];
 
-    char    *LIBHTTPD_VERSION =  "0.2-fasterconfig";
-    char    *LIBHTTPD_VENDOR =   "Seeed Technology Inc";
-    unsigned char isAcceptable[96] =
-    /*      Bit 0           xalpha          -- see RFC 1630
-    **      Bit 1           xpalpha         -- as xalpha but with plus.
-    **      Bit 2 ...       path            -- as xpalpha but with /
-    */
-        /*   0 1 2 3 4 5 6 7 8 9 A B C D E F */
-    { 0, 7, 7, 0, 7, 0, 7, 7, 7, 7, 7, 6, 7, 7, 7, 4,       /* 2x   !"#$%&'()*+,-./ */
-        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0,     /* 3x  0123456789:;<=>?  */
-        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,     /* 4x  @ABCDEFGHIJKLMNO */
-        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 7,     /* 5X  PQRSTUVWXYZ[\]^_ */
-        0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,     /* 6x  `abcdefghijklmno */
-        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0
-    };                              /* 7X  pqrstuvwxyz{\}~ DEL */
+    static Httpd *HttpServerCallBack;
 
 protected:
 };
