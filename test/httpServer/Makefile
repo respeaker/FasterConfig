@@ -7,7 +7,7 @@ LIB= -lpthread
 CC=g++ 
 CC_FLAG=-Wall -std=c++11
   
-PRG=dnslookup
+PRG=httpServer
 OBJ=main.cpp ../../src/DNSLookup.cpp 	\
 				 ../../src/query.cpp 	\
 				../../src/logger.cpp 	\
@@ -17,7 +17,7 @@ OBJ=main.cpp ../../src/DNSLookup.cpp 	\
 				../../src/httpd.cpp
   
 $(PRG):$(OBJ)  
-	$(CC) -I$(INC) $(LIB) -o $@ $(OBJ)  
+	$(CC) -I$(INC)  -o $@ $(OBJ)  $(LIB)
       
 .SUFFIXES: .c .o .cpp  
 .cpp.o:  
