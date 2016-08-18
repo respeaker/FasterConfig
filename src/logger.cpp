@@ -28,24 +28,26 @@
 
 
 #include "logger.h"
-
+#include <iostream>
 using namespace dns;
 using namespace std;
 
 // static
 Logger* Logger::_instance = 0;
 ofstream Logger::_file("/tmp/fasterconfig.log", ios::out|ios::trunc);
+debugconf_t Logger::debugconf;
 
-Logger& Logger::instance() throw () {
+
+Logger::Logger() { 
+debugconf.debuglevel = LOG_INFO;
+debugconf.log_stderr = 1;
+debugconf.log_syslog = 0;
+debugconf.syslog_facility = 0;
+}
+Logger& Logger::instance() throw() {
 
     if (_instance == 0) {
         _instance == new Logger();
-        debugconf_t debugconf = {
-            .debuglevel = LOG_INFO,
-            .log_stderr = 1,
-            .log_syslog = 0,
-            .syslog_facility = 0
-        };
     }
 
     return *_instance;
@@ -87,11 +89,11 @@ void Logger::_debug(const char *filename, int line, int level, const char *forma
 
     time(&ts);
 
-    if (debugconf.debuglevel >= level) {
+    if (LOG_INFO >= level) {
         sigemptyset(&block_chld);
         sigaddset(&block_chld, SIGCHLD);
         sigprocmask(SIG_BLOCK, &block_chld, NULL);
-
+        
         if (level <= LOG_WARNING) {
             fprintf(stderr, "[%d][%.24s][%u](%s:%d) ", level, ctime_r(&ts, buf), getpid(),
                 filename, line);

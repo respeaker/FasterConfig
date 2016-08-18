@@ -57,14 +57,13 @@ typedef struct _debug_conf {
     int syslog_facility; /**< @brief facility to use when using syslog for logging */
 } debugconf_t;
 
-extern debugconf_t debugconf;
 
 /** Used to output messages.
  * The messages will include the filename and line number, and will be sent to syslog if so configured in the config file 
  * @param level Debug level
  * @param format... sprintf like format string
  */
-#define debug(level, format...) logger._debug(__FILE__, __LINE__, level, format)
+#define debug(level, format...) logger->_debug(__FILE__, __LINE__, level, format)
 
 
 
@@ -112,13 +111,15 @@ public:
 
     /** @internal */
     void _debug(const char *, int, int, const char *, ...);
-    debugconf_t debugconf;
+
+
+    
 protected:
     /**
      *  Constructor.
      *  Creates the one and only Logger object.
      */
-    Logger() {}
+    Logger();
 
     /**
      *  Destructor
@@ -128,7 +129,7 @@ protected:
 private:
     static Logger* _instance;
     static std::ofstream _file;
-
+    static debugconf_t debugconf;
 };
 }
 #endif	/* _DNS_LOGGER_H */
