@@ -78,8 +78,8 @@ int Httpd::start() {
     void **params;
     int result;
     pthread_t tid;
-    httpdAddCContent(webserver, "/", "fasterconfig", 0, NULL, reinterpret_cast<callBackTypeA>(&Httpd::http_callback_wifidog));
-    httpdAddCContent(webserver, "/fasterconfig", "", 0, NULL, reinterpret_cast<callBackTypeA>(&Httpd::http_callback_wifidog));
+    httpdAddCContent(webserver, "/", "fasterconfig", 0, NULL, &Httpd::http_callback_fasterconfig);
+    httpdAddCContent(webserver, "/fasterconfig", "root", 0, NULL, &Httpd::http_callback_fasterconfig);
 
     //httpdSetErrorFunction(webserver, 404, &Httpd::http_callback_404);
     debug(LOG_INFO,  "create web server:%s:%d\n",gw_address,gw_port);
@@ -138,8 +138,9 @@ void* Httpd::thread_httpd(void *args)
 	webserver = reinterpret_cast<httpd *>(*params);
 	r = reinterpret_cast<request*>(*(params + 1));
 	free(params); /* XXX We must release this ourselves. */
-	
-	if (HttpServerCallBack->httpdReadRequest(webserver, r) == 0) {
+
+    if (HttpServerCallBack->httpdReadRequest(webserver, r) == 0) {
+         HttpServerCallBack->debug(LOG_INFO,"LOG_DEBUG........:%d",LOG_DEBUG); 
 		/*
 		 * We read the request fine
 		 */
@@ -233,12 +234,18 @@ void Httpd::httpdProcessRequest(httpd *server, request *r) {
         //    return;
         //}
     }
+    debug(LOG_INFO, "entry->type:%d",entry->type);
+    
+    
     switch (entry->type) {
     case HTTP_C_FUNCT:
     case HTTP_C_WILDCARD:
-        reinterpret_cast<callBackTypeB>(entry->function)(server, r);
-        break;
-
+        {
+            debug(LOG_DEBUG,"r->response.headersSent:%d",r->response.headersSent);
+            debug(LOG_DEBUG, " r->response.contentType:%s", r->response.contentType);
+            (this->*entry->function)(server, r);
+            break;
+        }
     case HTTP_STATIC:
         _httpd_sendStatic(server, r, entry->data);
         break;
@@ -317,7 +324,7 @@ request* Httpd::httpdGetConnection(httpd *server, struct timeval *timeout) {
 
 
 int Httpd::httpdAddCContent(httpd *server, const char *dir, const char *name, int indexFlag,
-                            int (*preload)(), void (*function)()) {
+                            int (*preload)(), void (Httpd::*function)(httpd *, request *)) {
     httpDir *dirPtr;
     httpContent *newEntry;
 
@@ -366,8 +373,10 @@ httpDir* Httpd::_httpd_findContentDir(httpd *server, char *dir, int createFlag) 
     return (curItem);
 }
 
-void Httpd::http_callback_wifidog(httpd *webserver, request *r) {
-    send_http_page(r, "WiFiDog", "Please use the menu to navigate the features of this WiFiDog installation.");
+void Httpd::http_callback_fasterconfig(httpd *webserver, request *r) {
+            debug(LOG_DEBUG,"r->response.headersSent:%d",r->response.headersSent);
+            debug(LOG_DEBUG, " r->response.contentType:%s", r->response.contentType);
+    send_http_page(r, "FasterConfig", "Please use the menu to navigate the features of this FasterConfig installation.");
 }
 
 void Httpd::send_http_page(request *r, const char *title, const char *message) {
@@ -375,7 +384,6 @@ void Httpd::send_http_page(request *r, const char *title, const char *message) {
     struct stat stat_info;
     int fd;
     ssize_t written;
-
     fd = open("/home/pillar/MTK/FasterConfig/fasterconfig-msg.html", O_RDONLY);
     if (fd == -1) {
         debug(LOG_CRIT, "Failed to open HTML message file /etc/fasterconfig/fasterconfig-msg.html: %s", strerror(errno));
@@ -399,10 +407,11 @@ void Httpd::send_http_page(request *r, const char *title, const char *message) {
     }
     close(fd);
 
+    
     buffer[written] = 0;
     httpdAddVariable(r, "title", title);
     httpdAddVariable(r, "message", message);
-    httpdAddVariable(r, "nodeID", NULL);
+    httpdAddVariable(r, "nodeID", "123");
     httpdOutput(r, buffer);
     free(buffer);
 }
@@ -448,11 +457,12 @@ void Httpd::httpdOutput(request *r, const char *msg) {
     }
     *dest = 0;
     r->response.responseLength += strlen(buf);
-    if (r->response.headersSent == 0) httpdSendHeaders(r);
+    if (r->response.headersSent == 0 ) httpdSendHeaders(r);
+
     _httpd_net_write(r->clientSock, buf, strlen(buf));
 }
 void Httpd::httpdSendHeaders(request *r) {
-    _httpd_sendHeaders(r, 0, 0);
+    _httpd_sendHeaders(r, r->response.responseLength, 0);
 }
 void Httpd::_httpd_formatTimeString(char *ptr, int clock) {
     struct tm *timePtr;
@@ -498,11 +508,9 @@ void Httpd::_httpd_sendHeaders(request *r, int contentLength, int modTime) {
 }
 
 int Httpd::_httpd_net_write(int sock, const char *buf, int len) {
-#if defined(_WIN32)
-    return (send(sock, buf, len, 0));
-#else
+    debug(LOG_INFO,"%d:%s",len,buf);
+
     return (write(sock, buf, len));
-#endif
 }
 
 httpVar* Httpd::httpdGetVariableByName(request *r, const char *name) {
@@ -524,9 +532,13 @@ int Httpd::httpdAddVariable(request *r, const char *name, const char *value) {
     newVar = (httpVar *)malloc(sizeof(httpVar));
     bzero(newVar, sizeof(httpVar));
     newVar->name = strdup(name);
-    newVar->value = strdup(value);
+    if (value == NULL) 
+        newVar->value = NULL;
+    else
+        newVar->value = strdup(value);
     lastVar = NULL;
     curVar = r->variables;
+    debug(LOG_INFO,"run httpdAddVariable");
     while (curVar) {
         if (strcmp(curVar->name, name) != 0) {
             lastVar = curVar;
@@ -540,6 +552,7 @@ int Httpd::httpdAddVariable(request *r, const char *name, const char *value) {
         lastVar->nextValue = newVar;
         return (0);
     }
+    //debug(LOG_DEBUG,"r->response.headersSent:%d",r->response.headersSent);
     if (lastVar) lastVar->nextVariable = newVar;
     else r->variables = newVar;
     return (0);
@@ -730,7 +743,7 @@ int Httpd::httpdReadRequest(httpd *server, request *r) {
     /*
      ** Setup for a standard response
      */
-    strcpy(r->response.headers, "Server: Hughes Technologies Embedded Server\n");
+    strcpy(r->response.headers, "Server: Seeed Technologies Embedded Server\n");
     strcpy(r->response.contentType, "text/html");
     strcpy(r->response.response, "200 Output Follows\n");
     r->response.headersSent = 0;

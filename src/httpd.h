@@ -89,6 +89,15 @@
 #define ACCEPTABLE(a)   ( a!='&' && a>=32 && a<128 && ((isAcceptable[a-32]) & mask))
 
 namespace dns { 
+class Httpd;
+struct httpdType;
+struct requestType;
+typedef struct httpdType httpd;
+typedef struct requestType request;
+typedef void(*callBackTypeA)(); // void (*)())
+typedef void(Httpd::*callBackTypeB)(httpd *, request *); //void (*)(httpd *, request *))
+typedef void(*callBackTypeC)(httpd *, request *, int); //void (*)(httpd *, request *, int))
+
 
 typedef struct {
     int method, contentLength, authLength;
@@ -107,7 +116,8 @@ typedef struct _httpd_var {
 typedef struct _httpd_content {
     char *name;
     int type, indexFlag;
-    void (*function) ();
+    //void (Httpd::*function) (httpd *, request *);
+    callBackTypeB function;
     char *data, *path;
     int (*preload) ();
     struct _httpd_content *next;
@@ -116,7 +126,10 @@ typedef struct _httpd_content {
 typedef struct {
     int responseLength;
     httpContent *content;
-    char headersSent, headers[HTTP_MAX_HEADERS], response[HTTP_MAX_URL], contentType[HTTP_MAX_URL];
+    char headersSent;
+    char headers[HTTP_MAX_HEADERS];
+    char response[HTTP_MAX_URL];
+    char contentType[HTTP_MAX_URL];
 } httpRes;
 
 typedef struct _httpd_dir {
@@ -131,27 +144,25 @@ typedef struct ip_acl_s {
     struct ip_acl_s *next;
 } httpAcl;
 
-typedef struct {
+struct httpdType{
     int port, serverSock, startTime, lastError;
     char fileBasePath[HTTP_MAX_URL], *host;
     httpDir *content;
     httpAcl *defaultAcl;
     FILE *accessLog, *errorLog;
     void (*errorFunction304) (), (*errorFunction403) (), (*errorFunction404) ();
-} httpd;
+};
 
-typedef struct {
+struct requestType{
     int clientSock, readBufRemain;
     httpReq request;
     httpRes response;
     httpVar *variables;
     char readBuf[HTTP_READ_BUF_LEN + 1], *readBufPtr, clientAddr[HTTP_IP_ADDR_LEN];
-} request;
+};
 
 
-typedef void(*callBackTypeA)(); // void (*)())
-typedef void(*callBackTypeB)(httpd *, request *); //void (*)(httpd *, request *))
-typedef void(*callBackTypeC)(httpd *, request *, int); //void (*)(httpd *, request *, int))
+
 class Httpd {
 public:
     /**
@@ -161,7 +172,8 @@ public:
     Httpd(const std::string &ip_address, int port);
     int start();
     int httpdAddCContent (httpd *, const char *,const char *, int, int (*)(), 
-                          void (*function) ());
+                          void (Httpd::*)(httpd *, request *));
+
     httpd *httpdCreate (char *, int );
     request *httpdGetConnection (httpd *, struct timeval *);
     httpDir* _httpd_findContentDir(httpd *server, char *dir, int createFlag);
@@ -205,7 +217,7 @@ public:
     /**@brief Callback for libhttpd, main entry point for captive portal */
     void http_callback_404(httpd *, request *, int);
     /**@brief Callback for libhttpd */
-    void http_callback_wifidog(httpd *, request *);
+    void http_callback_fasterconfig(httpd *, request *);
 
 
     char* arp_get(const char *req_ip);
