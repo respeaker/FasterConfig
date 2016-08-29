@@ -38,7 +38,7 @@
 #include "logger.h"
 using namespace dns;
 int main() { 
-    Httpd *httpserver = new Httpd("192.168.199.125",2048);
+    Httpd *httpserver = new Httpd("127.0.0.1",2048);
     httpserver->start();
     return 0;
 }
