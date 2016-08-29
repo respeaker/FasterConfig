@@ -47,7 +47,7 @@ debugconf.syslog_facility = 0;
 Logger& Logger::instance() throw() {
 
     if (_instance == 0) {
-        _instance == new Logger();
+        _instance = new Logger();
     }
 
     return *_instance;
