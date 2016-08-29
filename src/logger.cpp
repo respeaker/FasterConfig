@@ -89,7 +89,7 @@ void Logger::_debug(const char *filename, int line, int level, const char *forma
 
     time(&ts);
 
-    if (LOG_INFO >= level) {
+    if (10 >= level) {
         sigemptyset(&block_chld);
         sigaddset(&block_chld, SIGCHLD);
         sigprocmask(SIG_BLOCK, &block_chld, NULL);
