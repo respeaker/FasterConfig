@@ -79,6 +79,7 @@
 
 #define HAVE_STDARG_H       1
 
+#define MAX_BUF 4096
 
 #define LEVEL_ERROR	"error"
 
@@ -164,6 +165,68 @@ struct requestType{
     char readBuf[HTTP_READ_BUF_LEN + 1], *readBufPtr, clientAddr[HTTP_IP_ADDR_LEN];
 };
 
+/**
+ * Firewall targets
+ */
+typedef enum {
+    TARGET_DROP,
+    TARGET_REJECT,
+    TARGET_ACCEPT,
+    TARGET_LOG,
+    TARGET_ULOG
+} t_firewall_target;
+
+/**
+ * Firewall rules
+ */
+typedef struct _firewall_rule_t {
+    t_firewall_target target;   /**< @brief t_firewall_target */
+    char *protocol;             /**< @brief tcp, udp, etc ... */
+    char *port;                 /**< @brief Port to block/allow */
+    char *mask;                 /**< @brief Mask for the rule *destination* */
+    int mask_is_ipset; /**< @brief *destination* is ipset  */
+    struct _firewall_rule_t *next;
+} t_firewall_rule;
+
+/**
+ * Firewall rulesets
+ */
+typedef struct _firewall_ruleset_t {
+    char *name;
+    t_firewall_rule *rules;
+    struct _firewall_ruleset_t *next;
+} t_firewall_ruleset;
+
+/**
+ * Trusted MAC Addresses
+ */
+typedef struct _trusted_mac_t {
+    char *mac;
+    struct _trusted_mac_t *next;
+} t_trusted_mac;
+
+/**
+ * Popular Servers
+ */
+typedef struct _popular_server_t {
+    char *hostname;
+    struct _popular_server_t *next;
+} t_popular_server;
+
+/**
+ * Configuration structure
+ */
+typedef struct {
+    char *configfile;       /**< @brief name of the config file */
+    char *htmlmsgfile;          /**< @brief name of the HTML file used for messages */
+
+    char *gw_id;                /**< @brief ID of the Gateway, sent to central
+				     server */
+    char *gw_interface;         /**< @brief Interface we will accept connections on */
+    char *gw_address;           /**< @brief Internal IP address for our web
+				     server */
+    int gw_port;                /**< @brief Port the webserver will run on */
+} golbe_config;
 
 
 class Httpd {
@@ -224,6 +287,10 @@ public:
     /**@brief Callback for libhttpd */
     void http_callback_fasterconfig(httpd *, request *);
 
+    void http_send_redirect(request * r, const char *url, const char *text);
+    void httpdAddHeader(request * r, const char *msg);
+    char * _httpd_escape(const char *str);
+
 
     char* arp_get(const char *req_ip);
 
@@ -239,8 +306,6 @@ private:
     /* The internal web server */
     httpd * webserver = NULL;
     Logger *logger;
-    char* gw_address;
-    int gw_port;
 
     static void* thread_httpd(void *args);
 
@@ -251,6 +316,8 @@ private:
     unsigned char isAcceptable[96];
 
     static Httpd *HttpServerCallBack;
+
+    golbe_config config;
 
 protected:
 };

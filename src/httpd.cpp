@@ -37,9 +37,9 @@ THE SOFTWARE.
 using namespace dns;
 Httpd *Httpd::HttpServerCallBack;
 Httpd::Httpd(const std::string &ip_address = "192.168.199.125",  int port = 321) {
-    gw_port = port;
-    gw_address = (char *)malloc(ip_address.length() * sizeof(char));
-    strcpy(gw_address, ip_address.data());
+    config.gw_port = port;
+    config.gw_address = (char *)malloc(ip_address.length() * sizeof(char));
+    strcpy(config.gw_address, ip_address.data());
 
 
 
@@ -65,11 +65,11 @@ Httpd::Httpd(const std::string &ip_address = "192.168.199.125",  int port = 321)
     HttpServerCallBack = this;
 }
 Httpd::~Httpd() {
-    free(gw_address);
+    free(config.gw_address);
 }
 int Httpd::start() {
 
-    if ((webserver = httpdCreate(gw_address, gw_port)) == NULL) {
+    if ((webserver = httpdCreate(config.gw_address, config.gw_port)) == NULL) {
         debug(LOG_ERR, "Could not create web server: %s", strerror(errno));
         return -1;
     }
@@ -81,8 +81,7 @@ int Httpd::start() {
     httpdAddCContent(webserver, "/", "fasterconfig", 0, NULL, &Httpd::http_callback_fasterconfig);
     httpdAddCContent(webserver, "/fasterconfig", "root", 0, NULL, &Httpd::http_callback_fasterconfig);
 
-    //httpdSetErrorFunction(webserver, 404, &Httpd::http_callback_404);
-    debug(LOG_INFO,  "create web server:%s:%d\n",gw_address,gw_port);
+    debug(LOG_INFO,  "create web server:%s:%d\n",config.gw_address,config.gw_port);
 
     httpdSetErrorFunction(webserver, 404, &Httpd::http_callback_404);
     while (1) {
@@ -214,6 +213,7 @@ void Httpd::httpdProcessRequest(httpd *server, request *r) {
         /* printf("Invalid request path '%s'\n", dirName); */
         return;
     }
+    debug(LOG_INFO, "................................");
     strncpy(entryName, cp + 1, HTTP_MAX_URL);
     entryName[HTTP_MAX_URL - 1] = 0;
     if (cp != dirName) *cp = 0;
@@ -407,7 +407,7 @@ void Httpd::send_http_page(request *r, const char *title, const char *message) {
     struct stat stat_info;
     int fd;
     ssize_t written;
-    fd = open("/home/pillar/MTK/FasterConfig/fasterconfig-msg.html", O_RDONLY);
+    fd = open("/Users/Yanny/workspace/FasterConfig/fasterconfig-msg.html", O_RDONLY);
     if (fd == -1) {
         debug(LOG_CRIT, "Failed to open HTML message file /etc/fasterconfig/fasterconfig-msg.html: %s", strerror(errno));
         return;
@@ -980,6 +980,7 @@ void Httpd::_httpd_sanitiseUrl(char *url) {
     }
     *to = 0;
 }
+
 void Httpd::_httpd_storeData(request *r, char *query) {
     char *cp, *cp2, *var, *val, *tmpVal;
 
@@ -1314,8 +1315,7 @@ void Httpd::_httpd_send403(httpd *server, request *r) {
 /** The 404 handler is also responsible for redirecting to the auth server */
 void Httpd::http_callback_404(httpd *webserver, request *r, int error_code) {
     char tmp_url[MAX_BUF], *url, *mac;
-    s_config *config = config_get_config();
-   // t_auth_serv *auth_server = get_auth_server();
+    //t_auth_serv *auth_server = get_auth_server();
 
     memset(tmp_url, 0, sizeof(tmp_url));
     /* 
@@ -1327,81 +1327,147 @@ void Httpd::http_callback_404(httpd *webserver, request *r, int error_code) {
              r->request.host, r->request.path, r->request.query[0] ? "?" : "", r->request.query);
     url = httpdUrlEncode(tmp_url);
 
-    /* Re-direct them to auth server */
-    char *urlFragment;
+            /* Re-direct them to auth server */
+            char *urlFragment;
+            asprintf(&urlFragment, "config/gw_address=%s&gw_port=%d&gw_id=%s&ip=%s&mac=%s&url=%s",
+                              config.gw_address, config.gw_port, config.gw_id, r->clientAddr, mac, url);
 
-    if (!(mac = arp_get(r->clientAddr))) {
-        /* We could not get their MAC address */
-        debug(LOG_INFO, "Failed to retrieve MAC address for ip %s, so not putting in the login request",
-              r->clientAddr);
-        vasprintf(&urlFragment, "%sgw_address=%s&gw_port=%d&gw_id=%s&ip=%s&url=%s",
-                      auth_server->authserv_login_script_path_fragment, config->gw_address, config->gw_port,
-                      config->gw_id, r->clientAddr, url);
-    } else {
-        debug(LOG_INFO, "Got client MAC address for ip %s: %s", r->clientAddr, mac);
-        vasprintf(&urlFragment, "%sgw_address=%s&gw_port=%d&gw_id=%s&ip=%s&mac=%s&url=%s",
-                      auth_server->authserv_login_script_path_fragment,
-                      config->gw_address, config->gw_port, config->gw_id, r->clientAddr, mac, url);
-        free(mac);
-    }
+#if 0
+            if (!(mac = arp_get(r->clientAddr))) {
+                /* We could not get their MAC address */
+                debug(LOG_INFO, "Failed to retrieve MAC address for ip %s, so not putting in the login request",
+                      r->clientAddr);
+                asprintf(&urlFragment, "config/gw_address=%s&gw_port=%d&gw_id=%s&ip=%s&url=%s",
+                              config.gw_address, config.gw_port, config.gw_id, r->clientAddr, url);
 
-    // if host is not in whitelist, maybe not in conf or domain'IP changed, it will go to here.
-    debug(LOG_INFO, "Check host %s is in whitelist or not", r->request.host);       // e.g. www.example.com
-    t_firewall_rule *rule;
-    //e.g. example.com is in whitelist
-    // if request http://www.example.com/, it's not equal example.com.
-    for (rule = get_ruleset("global"); rule != NULL; rule = rule->next) {
-        debug(LOG_INFO, "rule mask %s", rule->mask);
-        if (strstr(r->request.host, rule->mask) == NULL) {
-            debug(LOG_INFO, "host %s is not in %s, continue", r->request.host, rule->mask);
-            continue;
-        }
-        int host_length = strlen(r->request.host);
-        int mask_length = strlen(rule->mask);
-        if (host_length != mask_length) {
-            char prefix[1024] = { 0 };
-            // must be *.example.com, if not have ".", maybe Phishing. e.g. phishingexample.com
-            strncpy(prefix, r->request.host, host_length - mask_length - 1);        // e.g. www
-            strcat(prefix, ".");    // www.
-            strcat(prefix, rule->mask);     // www.example.com
-            if (strcasecmp(r->request.host, prefix) == 0) {
-                debug(LOG_INFO, "allow subdomain");
-                fw_allow_host(r->request.host);
-                http_send_redirect(r, tmp_url, "allow subdomain");
-                free(url);
-                free(urlFragment);
-                return;
+                //vasprintf(&urlFragment, "config");
+            } else {
+                debug(LOG_INFO, "Got client MAC address for ip %s: %s", r->clientAddr, mac);
+                asprintf(&urlFragment, "config/gw_address=%s&gw_port=%d&gw_id=%s&ip=%s&mac=%s&url=%s",
+                              config.gw_address, config.gw_port, config.gw_id, r->clientAddr, mac, url);
+                free(mac);
             }
-        } else {
-            // e.g. "example.com" is in conf, so it had been parse to IP and added into "iptables allow" when wifidog start. but then its' A record(IP) changed, it will go to here.
-            debug(LOG_INFO, "allow domain again, because IP changed");
-            fw_allow_host(r->request.host);
-            http_send_redirect(r, tmp_url, "allow domain");
-            free(url);
-            free(urlFragment);
-            return;
-        }
-    }
+#endif
+            // if host is not in whitelist, maybe not in conf or domain'IP changed, it will go to here.
+            debug(LOG_INFO, "Check host %s is in whitelist or not", r->request.host);       // e.g. www.example.com
+            t_firewall_rule *rule;
+            //e.g. example.com is in whitelist
+            // if request http://www.example.com/, it's not equal example.com.
 
-    debug(LOG_INFO, "Captured %s requesting [%s] and re-directing them to login page", r->clientAddr, url);
-    http_send_redirect_to_auth(r, urlFragment, "Redirect to login page");
-    free(urlFragment);
-    
+            for (rule = (t_firewall_rule *)malloc(sizeof(t_firewall_rule)); rule != NULL; rule = rule->next) {
+                debug(LOG_INFO, "rule mask %s", rule->mask);
+                //if (strstr(r->request.host, rule->mask) == NULL) {
+                //    debug(LOG_INFO, "host %s is not in %s, continue", r->request.host, rule->mask);
+                //    continue;
+                //}
+                int host_length = strlen(r->request.host);
+                int mask_length = strlen(rule->mask);
+                if (host_length != mask_length) {
+                    char prefix[1024] = { 0 };
+                    // must be *.example.com, if not have ".", maybe Phishing. e.g. phishingexample.com
+                    strncpy(prefix, r->request.host, host_length - mask_length - 1);        // e.g. www
+                    strcat(prefix, ".");    // www.
+                    strcat(prefix, rule->mask);     // www.example.com
+                    if (strcasecmp(r->request.host, prefix) == 0) {
+                        debug(LOG_INFO, "allow subdomain");
+                        //fw_allow_host(r->request.host);
+                        http_send_redirect(r, tmp_url, "allow subdomain");
+                        free(url);
+                        free(urlFragment);
+                        return;
+                    }
+                } else {
+                    // e.g. "example.com" is in conf, so it had been parse to IP and added into "iptables allow" when wifidog start. but then its' A record(IP) changed, it will go to here.
+                    debug(LOG_INFO, "allow domain again, because IP changed");
+                    //fw_allow_host(r->request.host);
+                    http_send_redirect(r, tmp_url, "allow domain");
+                    free(url);
+                    free(urlFragment);
+                    return;
+                }
+            }
+
+            debug(LOG_INFO, "Captured %s requesting [%s] and re-directing them to login page", r->clientAddr, url);
+            //http_send_redirect_to_auth(r, urlFragment, "Redirect to login page");
+            free(urlFragment);
+
     free(url);
 }
 
-char* Httpd::httpdUrlEncode(const char *str) {
-    char *new, *cp;
+void Httpd::httpdAddHeader(request * r, const char *msg)
+{
+    int size;
+    size = HTTP_MAX_HEADERS - 2 - strlen(r->response.headers);
+    if (size > 0) {
+        strncat(r->response.headers, msg, size);
+        if (r->response.headers[strlen(r->response.headers) - 1] != '\n')
+            strcat(r->response.headers, "\n");
+    }
+}
 
-    new = (char *)_httpd_escape(str);
-    if (new == NULL) {
+
+
+/** @brief Sends a redirect to the web browser 
+ * @param r The request
+ * @param url The url to redirect to
+ * @param text The text to include in the redirect header and the manual redirect link title.  NULL is acceptable */
+void Httpd::http_send_redirect(request * r, const char *url, const char *text)
+{
+    char *message = NULL;
+    char *header = NULL;
+    char *response = NULL;
+    /* Re-direct them to auth server */
+    debug(LOG_DEBUG, "Redirecting client browser to %s", url);
+    asprintf(&header, "Location: %s", url);
+    asprintf(&response, "302 %s\n", text ? text : "Redirecting");
+    httpdSetResponse(r, response);
+    httpdAddHeader(r, header);
+    free(response);
+    free(header);
+    asprintf(&message, "Please <a href='%s'>click here</a>.", url);
+    send_http_page(r, text ? text : "Redirection to message", message);
+    free(message);
+}
+
+char* Httpd::httpdUrlEncode(const char *str) {
+    char *new_str, *cp;
+
+    new_str = (char *)_httpd_escape(str);
+    if (new_str == NULL) {
         return (NULL);
     }
-    cp = new;
+    cp = new_str;
     while (*cp) {
         if (*cp == ' ') *cp = '+';
         cp++;
     }
-    return (new);
+    return (new_str);
+}
+char * Httpd::_httpd_escape(const char *str){
+    unsigned char mask = URL_XPALPHAS;
+    const char *p;
+    char *q;
+    char *result;
+    int unacceptable = 0;
+    for (p = str; *p; p++)
+        if (!ACCEPTABLE((unsigned char)*p))
+            unacceptable += 2;
+    result = (char *)malloc(p - str + unacceptable + 1);
+    bzero(result, (p - str + unacceptable + 1));
+
+    if (result == NULL) {
+        return (NULL);
+    }
+    for (q = result, p = str; *p; p++) {
+        unsigned char a = *p;
+        if (!ACCEPTABLE(a)) {
+            *q++ = '%';         /* Means hex commming */
+            *q++ = hex[a >> 4];
+            *q++ = hex[a & 15];
+        } else
+            *q++ = *p;
+    }
+    *q++ = 0;                   /* Terminate */
+    return result;
 }
 
