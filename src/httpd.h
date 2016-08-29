@@ -89,14 +89,15 @@
 #define ACCEPTABLE(a)   ( a!='&' && a>=32 && a<128 && ((isAcceptable[a-32]) & mask))
 
 namespace dns { 
+
 class Httpd;
 struct httpdType;
 struct requestType;
 typedef struct httpdType httpd;
 typedef struct requestType request;
-typedef void(*callBackTypeA)(); // void (*)())
+typedef void(Httpd::*callBackTypeA)(); // void (*)())
 typedef void(Httpd::*callBackTypeB)(httpd *, request *); //void (*)(httpd *, request *))
-typedef void(*callBackTypeC)(httpd *, request *, int); //void (*)(httpd *, request *, int))
+typedef void(Httpd::*callBackTypeC)(httpd *, request *, int); //void (*)(httpd *, request *, int))
 
 
 typedef struct {
@@ -150,7 +151,9 @@ struct httpdType{
     httpDir *content;
     httpAcl *defaultAcl;
     FILE *accessLog, *errorLog;
-    void (*errorFunction304) (), (*errorFunction403) (), (*errorFunction404) ();
+    callBackTypeC errorFunction304;
+    callBackTypeC errorFunction403; 
+    callBackTypeC errorFunction404;
 };
 
 struct requestType{
@@ -213,9 +216,11 @@ public:
     void httpdSetResponse(request *r, const char *msg);
     void _httpd_sendText(request *r, const char *msg);
 
+    int httpdSetErrorFunction(httpd *server, int error, void (Httpd::*function)(httpd *, request *, int));
 
     /**@brief Callback for libhttpd, main entry point for captive portal */
     void http_callback_404(httpd *, request *, int);
+    char* httpdUrlEncode(const char *str);
     /**@brief Callback for libhttpd */
     void http_callback_fasterconfig(httpd *, request *);
 

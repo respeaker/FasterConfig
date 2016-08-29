@@ -83,6 +83,8 @@ int Httpd::start() {
 
     //httpdSetErrorFunction(webserver, 404, &Httpd::http_callback_404);
     debug(LOG_INFO,  "create web server:%s:%d\n",gw_address,gw_port);
+
+    httpdSetErrorFunction(webserver, 404, &Httpd::http_callback_404);
     while (1) {
         r = httpdGetConnection(webserver, NULL);
 
@@ -261,6 +263,27 @@ void Httpd::httpdProcessRequest(httpd *server, request *r) {
         break;
     }
     _httpd_writeAccessLog(server, r);
+}
+int Httpd::httpdSetErrorFunction(httpd *server, int error, void (Httpd::*function)(httpd *, request *, int)) {
+    char errBuf[80];
+
+    switch (error) {
+    case 304:
+        server->errorFunction304 = function;
+        break;
+    case 403:
+        server->errorFunction403 = function;
+        break;
+    case 404:
+        server->errorFunction404 = function;
+        break;
+    default:
+        snprintf(errBuf, 80, "Invalid error code (%d) for custom callback", error);
+        _httpd_writeErrorLog(server, NULL, LEVEL_ERROR, errBuf);
+        return (-1);
+        break;
+    }
+    return (0);
 }
 
 request* Httpd::httpdGetConnection(httpd *server, struct timeval *timeout) {
@@ -822,7 +845,7 @@ int Httpd::httpdReadRequest(httpd *server, request *r) {
                     }
                 }
             }
-            /* acv@acv.ca/wifidog: Added decoding of host: if
+            /* abc@abc.xyz/fasterconfg: Added decoding of host: if
              * present. */
             if (strncasecmp(buf, "Host: ", 6) == 0) {
                 cp = strchr(buf, ':');
@@ -1144,7 +1167,8 @@ void Httpd::_httpd_send404(httpd *server, request *r) {
         /*
          * There's a custom C 404 handler defined with httpdAddC404Content
          */
-        reinterpret_cast<callBackTypeC>(server->errorFunction404)(server, r, 404);
+        //reinterpret_cast<callBackTypeC>(server->errorFunction404)(server, r, 404);
+        (this->*server->errorFunction404)(server, r, 404);
     } else {
         /*
          * Send stock 404
@@ -1268,7 +1292,7 @@ const char* Httpd::httpdRequestMethodName(request *r) {
 }
 void Httpd::_httpd_send304(httpd *server, request *r) {
     if (server->errorFunction304) {
-        reinterpret_cast<callBackTypeC>(server->errorFunction304)(server, r, 304);
+        (this->*server->errorFunction304)(server, r,304);
     } else {
         httpdSetResponse(r, "304 Not Modified\n");
         _httpd_sendHeaders(r, 0, 0);
@@ -1277,7 +1301,7 @@ void Httpd::_httpd_send304(httpd *server, request *r) {
 
 void Httpd::_httpd_send403(httpd *server, request *r) {
     if (server->errorFunction403) {
-        reinterpret_cast<callBackTypeC>(server->errorFunction403)(server, r, 403);
+        (this->*server->errorFunction403)(server, r,403);
     } else {
         httpdSetResponse(r, "403 Permission Denied\n");
         _httpd_sendHeaders(r, 0, 0);
@@ -1285,5 +1309,99 @@ void Httpd::_httpd_send403(httpd *server, request *r) {
         _httpd_sendText(r, "<BODY><H1>Access to the request URL was denied!</H1>\n");
 
     }
+}
+
+/** The 404 handler is also responsible for redirecting to the auth server */
+void Httpd::http_callback_404(httpd *webserver, request *r, int error_code) {
+    char tmp_url[MAX_BUF], *url, *mac;
+    s_config *config = config_get_config();
+   // t_auth_serv *auth_server = get_auth_server();
+
+    memset(tmp_url, 0, sizeof(tmp_url));
+    /* 
+     * XXX Note the code below assumes that the client's request is a plain
+     * http request to a standard port. At any rate, this handler is called only
+     * if the internet/auth server is down so it's not a huge loss, but still.
+     */
+    snprintf(tmp_url, (sizeof(tmp_url) - 1), "http://%s%s%s%s",
+             r->request.host, r->request.path, r->request.query[0] ? "?" : "", r->request.query);
+    url = httpdUrlEncode(tmp_url);
+
+    /* Re-direct them to auth server */
+    char *urlFragment;
+
+    if (!(mac = arp_get(r->clientAddr))) {
+        /* We could not get their MAC address */
+        debug(LOG_INFO, "Failed to retrieve MAC address for ip %s, so not putting in the login request",
+              r->clientAddr);
+        vasprintf(&urlFragment, "%sgw_address=%s&gw_port=%d&gw_id=%s&ip=%s&url=%s",
+                      auth_server->authserv_login_script_path_fragment, config->gw_address, config->gw_port,
+                      config->gw_id, r->clientAddr, url);
+    } else {
+        debug(LOG_INFO, "Got client MAC address for ip %s: %s", r->clientAddr, mac);
+        vasprintf(&urlFragment, "%sgw_address=%s&gw_port=%d&gw_id=%s&ip=%s&mac=%s&url=%s",
+                      auth_server->authserv_login_script_path_fragment,
+                      config->gw_address, config->gw_port, config->gw_id, r->clientAddr, mac, url);
+        free(mac);
+    }
+
+    // if host is not in whitelist, maybe not in conf or domain'IP changed, it will go to here.
+    debug(LOG_INFO, "Check host %s is in whitelist or not", r->request.host);       // e.g. www.example.com
+    t_firewall_rule *rule;
+    //e.g. example.com is in whitelist
+    // if request http://www.example.com/, it's not equal example.com.
+    for (rule = get_ruleset("global"); rule != NULL; rule = rule->next) {
+        debug(LOG_INFO, "rule mask %s", rule->mask);
+        if (strstr(r->request.host, rule->mask) == NULL) {
+            debug(LOG_INFO, "host %s is not in %s, continue", r->request.host, rule->mask);
+            continue;
+        }
+        int host_length = strlen(r->request.host);
+        int mask_length = strlen(rule->mask);
+        if (host_length != mask_length) {
+            char prefix[1024] = { 0 };
+            // must be *.example.com, if not have ".", maybe Phishing. e.g. phishingexample.com
+            strncpy(prefix, r->request.host, host_length - mask_length - 1);        // e.g. www
+            strcat(prefix, ".");    // www.
+            strcat(prefix, rule->mask);     // www.example.com
+            if (strcasecmp(r->request.host, prefix) == 0) {
+                debug(LOG_INFO, "allow subdomain");
+                fw_allow_host(r->request.host);
+                http_send_redirect(r, tmp_url, "allow subdomain");
+                free(url);
+                free(urlFragment);
+                return;
+            }
+        } else {
+            // e.g. "example.com" is in conf, so it had been parse to IP and added into "iptables allow" when wifidog start. but then its' A record(IP) changed, it will go to here.
+            debug(LOG_INFO, "allow domain again, because IP changed");
+            fw_allow_host(r->request.host);
+            http_send_redirect(r, tmp_url, "allow domain");
+            free(url);
+            free(urlFragment);
+            return;
+        }
+    }
+
+    debug(LOG_INFO, "Captured %s requesting [%s] and re-directing them to login page", r->clientAddr, url);
+    http_send_redirect_to_auth(r, urlFragment, "Redirect to login page");
+    free(urlFragment);
+    
+    free(url);
+}
+
+char* Httpd::httpdUrlEncode(const char *str) {
+    char *new, *cp;
+
+    new = (char *)_httpd_escape(str);
+    if (new == NULL) {
+        return (NULL);
+    }
+    cp = new;
+    while (*cp) {
+        if (*cp == ' ') *cp = '+';
+        cp++;
+    }
+    return (new);
 }
 
