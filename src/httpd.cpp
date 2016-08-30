@@ -84,6 +84,7 @@ int Httpd::start() {
     debug(LOG_INFO,  "create web server:%s:%d\n",config.gw_address,config.gw_port);
 
     httpdSetErrorFunction(webserver, 404, &Httpd::http_callback_404);
+
     while (1) {
         r = httpdGetConnection(webserver, NULL);
 
@@ -205,6 +206,7 @@ void Httpd::httpdProcessRequest(httpd *server, request *r) {
     httpDir *dir;
     httpContent *entry;
 
+
     r->response.responseLength = 0;
     strncpy(dirName, httpdRequestPath(r), HTTP_MAX_URL);
     dirName[HTTP_MAX_URL - 1] = 0;
@@ -213,23 +215,27 @@ void Httpd::httpdProcessRequest(httpd *server, request *r) {
         /* printf("Invalid request path '%s'\n", dirName); */
         return;
     }
-    debug(LOG_INFO, "................................");
+    
     strncpy(entryName, cp + 1, HTTP_MAX_URL);
     entryName[HTTP_MAX_URL - 1] = 0;
     if (cp != dirName) *cp = 0;
     else *(cp + 1) = 0;
     dir = _httpd_findContentDir(server, dirName, HTTP_FALSE);
-    if (dir == NULL) {
+
+    debug(LOG_INFO, "dir: %s", dir->name); 
+    if (!dir) {
+         debug(LOG_INFO, "dir is NULL"); 
         _httpd_send404(server, r);
         _httpd_writeAccessLog(server, r);
         return;
     }
     entry = _httpd_findContentEntry(r, dir, entryName);
-    if (entry == NULL) {
+    if (1) {
         _httpd_send404(server, r);
         _httpd_writeAccessLog(server, r);
         return;
     }
+
     if (entry->preload) {
        // if ((entry->preload)(server) < 0) {
         //    _httpd_writeAccessLog(server, r);
@@ -366,8 +372,10 @@ int Httpd::httpdAddCContent(httpd *server, const char *dir, const char *name, in
 }
 
 httpDir* Httpd::_httpd_findContentDir(httpd *server, char *dir, int createFlag) {
+
     char buffer[HTTP_MAX_URL], *curDir;
-    httpDir * curItem,*curChild;
+    httpDir * curItem = new httpDir;
+    httpDir *curChild = new httpDir;
 
     strncpy(buffer, dir, HTTP_MAX_URL);
     buffer[HTTP_MAX_URL - 1] = 0;
@@ -393,6 +401,7 @@ httpDir* Httpd::_httpd_findContentDir(httpd *server, char *dir, int createFlag) 
         curItem = curChild;
         curDir = strtok(NULL, "/");
     }
+    
     return (curItem);
 }
 
@@ -1165,6 +1174,7 @@ void Httpd::_httpd_send404(httpd *server, request *r) {
     _httpd_writeErrorLog(server, r, LEVEL_ERROR, msg);
 
     if (server->errorFunction404) {
+        debug(LOG_INFO,"start 404 function");
         /*
          * There's a custom C 404 handler defined with httpdAddC404Content
          */
@@ -1204,16 +1214,19 @@ void Httpd::_httpd_writeAccessLog(httpd *server, request *r) {
             r->clientAddr, dateBuf, httpdRequestMethodName(r),
             httpdRequestPath(r), responseCode, r->response.responseLength);
 }
-httpContent* Httpd::_httpd_findContentEntry(request *r, httpDir *dir, char *entryName) {
-    httpContent *curEntry;
 
+httpContent* Httpd::_httpd_findContentEntry(request *r, httpDir *dir, char *entryName) {
+
+    httpContent *curEntry = new httpContent;
     curEntry = dir->entries;
+#if 0
     while (curEntry) {
         if (curEntry->type == HTTP_WILDCARD || curEntry->type == HTTP_C_WILDCARD) break;
         if (*entryName == 0 && curEntry->indexFlag) break;
         if (strcmp(curEntry->name, entryName) == 0) break;
         curEntry = curEntry->next;
     }
+#endif
     if (curEntry) r->response.content = curEntry;
     return (curEntry);
 }
@@ -1323,15 +1336,20 @@ void Httpd::http_callback_404(httpd *webserver, request *r, int error_code) {
      * http request to a standard port. At any rate, this handler is called only
      * if the internet/auth server is down so it's not a huge loss, but still.
      */
-    snprintf(tmp_url, (sizeof(tmp_url) - 1), "http://%s%s%s%s",
-             r->request.host, r->request.path, r->request.query[0] ? "?" : "", r->request.query);
+    //snprintf(tmp_url, (sizeof(tmp_url) - 1), "http://%s%s%s%s",
+    //         r->request.host, r->request.path, r->request.query[0] ? "?" : "", r->request.query);
+    snprintf(tmp_url,(sizeof(tmp_url) - 1),"http://www.baidu.com"); 
+    debug(LOG_INFO,"%s",tmp_url); 
     url = httpdUrlEncode(tmp_url);
-
+    debug(LOG_INFO,"%s",url); 
             /* Re-direct them to auth server */
-            char *urlFragment;
-            asprintf(&urlFragment, "config/gw_address=%s&gw_port=%d&gw_id=%s&ip=%s&mac=%s&url=%s",
-                              config.gw_address, config.gw_port, config.gw_id, r->clientAddr, mac, url);
-
+            char urlFragment[MAX_BUF];
+            //snprintf(urlFragment,(sizeof(urlFragment) - 1), "config/gw_address=%s&gw_port=%d&gw_id=%s&ip=%s&mac=%s&url=%s",
+            //                  config.gw_address, config.gw_port, config.gw_id, r->clientAddr, mac, url);
+            snprintf(urlFragment,(sizeof(urlFragment) - 1), "config");
+            debug(LOG_INFO,"%s",urlFragment);
+            http_send_redirect(r, tmp_url, "allow domain");
+            return ; 
 #if 0
             if (!(mac = arp_get(r->clientAddr))) {
                 /* We could not get their MAC address */
@@ -1355,7 +1373,7 @@ void Httpd::http_callback_404(httpd *webserver, request *r, int error_code) {
             // if request http://www.example.com/, it's not equal example.com.
 
             for (rule = (t_firewall_rule *)malloc(sizeof(t_firewall_rule)); rule != NULL; rule = rule->next) {
-                debug(LOG_INFO, "rule mask %s", rule->mask);
+                debug(LOG_INFO, "rule mask %s,request.host:%s", rule->mask,r->request.host);
                 //if (strstr(r->request.host, rule->mask) == NULL) {
                 //    debug(LOG_INFO, "host %s is not in %s, continue", r->request.host, rule->mask);
                 //    continue;
@@ -1373,7 +1391,6 @@ void Httpd::http_callback_404(httpd *webserver, request *r, int error_code) {
                         //fw_allow_host(r->request.host);
                         http_send_redirect(r, tmp_url, "allow subdomain");
                         free(url);
-                        free(urlFragment);
                         return;
                     }
                 } else {
@@ -1382,14 +1399,12 @@ void Httpd::http_callback_404(httpd *webserver, request *r, int error_code) {
                     //fw_allow_host(r->request.host);
                     http_send_redirect(r, tmp_url, "allow domain");
                     free(url);
-                    free(urlFragment);
                     return;
                 }
             }
 
             debug(LOG_INFO, "Captured %s requesting [%s] and re-directing them to login page", r->clientAddr, url);
             //http_send_redirect_to_auth(r, urlFragment, "Redirect to login page");
-            free(urlFragment);
 
     free(url);
 }
