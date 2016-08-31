@@ -210,6 +210,7 @@ void Httpd::httpdProcessRequest(httpd *server, request *r) {
     r->response.responseLength = 0;
     strncpy(dirName, httpdRequestPath(r), HTTP_MAX_URL);
     dirName[HTTP_MAX_URL - 1] = 0;
+     
     cp = strrchr(dirName, '/');
     if (cp == NULL) {
         /* printf("Invalid request path '%s'\n", dirName); */
@@ -220,7 +221,8 @@ void Httpd::httpdProcessRequest(httpd *server, request *r) {
     entryName[HTTP_MAX_URL - 1] = 0;
     if (cp != dirName) *cp = 0;
     else *(cp + 1) = 0;
-    dir = _httpd_findContentDir(server, dirName, HTTP_FALSE);
+    debug(LOG_INFO, "path: %s  %s %s", cp, entryName, dirName); 
+    dir = _httpd_findContentDir(server, cp, HTTP_FALSE);
 
     debug(LOG_INFO, "dir: %s", dir->name); 
     if (!dir) {
@@ -230,7 +232,7 @@ void Httpd::httpdProcessRequest(httpd *server, request *r) {
         return;
     }
     entry = _httpd_findContentEntry(r, dir, entryName);
-    if (1) {
+    if (!entry) {
         _httpd_send404(server, r);
         _httpd_writeAccessLog(server, r);
         return;
@@ -357,7 +359,7 @@ int Httpd::httpdAddCContent(httpd *server, const char *dir, const char *name, in
     httpDir *dirPtr;
     httpContent *newEntry;
 
-    dirPtr = _httpd_findContentDir(server, const_cast<char*>(dir), HTTP_TRUE);
+    dirPtr = _httpd_findContentDir(server, const_cast<char *>(dir), HTTP_TRUE); 
     newEntry = (httpContent *)malloc(sizeof(httpContent));
     if (newEntry == NULL) return (-1);
     bzero(newEntry, sizeof(httpContent));
@@ -367,6 +369,7 @@ int Httpd::httpdAddCContent(httpd *server, const char *dir, const char *name, in
     newEntry->function = function;
     newEntry->preload = preload;
     newEntry->next = dirPtr->entries;
+    
     dirPtr->entries = newEntry;
     return (0);
 }
@@ -383,6 +386,7 @@ httpDir* Httpd::_httpd_findContentDir(httpd *server, char *dir, int createFlag) 
     curDir = strtok(buffer, "/");
     while (curDir) {
         curChild = curItem->children;
+        debug(LOG_INFO, "curDir: %s, buffer: %s", curDir,buffer); 
         while (curChild) {
             if (strcmp(curChild->name, curDir) == 0) break;
             curChild = curChild->next;
@@ -416,7 +420,7 @@ void Httpd::send_http_page(request *r, const char *title, const char *message) {
     struct stat stat_info;
     int fd;
     ssize_t written;
-    fd = open("/Users/Yanny/workspace/FasterConfig/fasterconfig-msg.html", O_RDONLY);
+    fd = open("/etc/fasterconfig/fasterconfig-msg.html", O_RDONLY);
     if (fd == -1) {
         debug(LOG_CRIT, "Failed to open HTML message file /etc/fasterconfig/fasterconfig-msg.html: %s", strerror(errno));
         return;
@@ -1219,14 +1223,12 @@ httpContent* Httpd::_httpd_findContentEntry(request *r, httpDir *dir, char *entr
 
     httpContent *curEntry = new httpContent;
     curEntry = dir->entries;
-#if 0
     while (curEntry) {
         if (curEntry->type == HTTP_WILDCARD || curEntry->type == HTTP_C_WILDCARD) break;
         if (*entryName == 0 && curEntry->indexFlag) break;
         if (strcmp(curEntry->name, entryName) == 0) break;
         curEntry = curEntry->next;
     }
-#endif
     if (curEntry) r->response.content = curEntry;
     return (curEntry);
 }
@@ -1338,7 +1340,8 @@ void Httpd::http_callback_404(httpd *webserver, request *r, int error_code) {
      */
     //snprintf(tmp_url, (sizeof(tmp_url) - 1), "http://%s%s%s%s",
     //         r->request.host, r->request.path, r->request.query[0] ? "?" : "", r->request.query);
-    snprintf(tmp_url,(sizeof(tmp_url) - 1),"http://www.baidu.com"); 
+    debug(LOG_INFO, "You want to visit: %s%s", r->request.host, r->request.path); 
+    snprintf(tmp_url,(sizeof(tmp_url) - 1),"http://192.168.100.1:2048/fasterconfig"); 
     debug(LOG_INFO,"%s",tmp_url); 
     url = httpdUrlEncode(tmp_url);
     debug(LOG_INFO,"%s",url); 
