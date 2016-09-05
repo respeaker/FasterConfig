@@ -25,59 +25,69 @@
   THE SOFTWARE.
 */
 
-#ifndef _DNS_APPLICATION_H
-#define	_DNS_APPLICATION_H
 
-#include "exception.h"
+#include <iostream>
+#include <cstring>
+#include <sys/socket.h>
+#include <errno.h>
+
+#include "logger.h"
 #include "server.h"
 #include "resolver.h"
 
-namespace dns {
+using namespace std;
+using namespace dns;
 
-/**
- *  Application class is a terminal application that parses arguments from
- *  command line. It has a socket @ref Server to receive queries and answer
- *  responses to those queries, and a @ref Resolver that handles the query and
- *  resolves the domain names contained on it.
- */
-class Application {
-public:
-    /**
-     *  Constructor.
-     *  Creates a Domain Server Application started from a terminal.
-     */
-    Application() : m_server(m_resolver) { }
+void DnsServer::init(int port) throw (Exception) {
 
-    /**
-     *  Destructor
-     */
-    virtual ~Application() { }
+    Logger& logger = Logger::instance();
+    logger.trace("Server::init()");
 
-    /**
-     *  Parse the port and hosts file from the arguments of main() function
-     *  @param argc Number of arguments passed
-     *  @param argv Array of arguments
-     */
-    void parse_arguments(int argc, char** argv) throw (Exception);
+    m_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
-    /**
-     *  Starts the application. Initialize the @ref Resolver and the @ref Server.
-     */
-    void run() throw(Exception);
+    m_address.sin_family = AF_INET;
+    m_address.sin_addr.s_addr = INADDR_ANY;
+    m_address.sin_port = htons(port);
 
+    int rbind = bind(m_sockfd, (struct sockaddr *) & m_address,
+                     sizeof (struct sockaddr_in));
+    
+    if (rbind != 0) {
+        string text("Could not bind: ");
+        text += strerror(errno);
+        Exception e(text);
+        throw(e);
+    }
 
-    int read_int_from_config_line(char* config_line);
-    void read_double_from_config_line(char* config_line, double* val);
-    void read_str_from_config_line(char* config_line, char* val) ;
-    void read_config_file(char* config_filename, struct config_struct config) ;
-private:
-    int m_port;
-    std::string m_filename;
-
-    Resolver m_resolver;
-    DnsServer m_server;
-};
+    cout << "Listening in port: " << port << ", sockfd: " << m_sockfd << endl;
 }
 
-#endif	/* _DNS_APPLICATION_H */
+void DnsServer::run() throw () {
 
+    Logger& logger = Logger::instance();
+    logger.trace("Server::run()");
+    
+    cout << "DNS Server running..." << endl;
+
+    char buffer[BUFFER_SIZE];
+    struct sockaddr_in clientAddress;
+    socklen_t addrLen = sizeof (struct sockaddr_in);
+
+    while (true) {
+
+        int nbytes = recvfrom(m_sockfd, buffer, BUFFER_SIZE, 0,
+                     (struct sockaddr *) &clientAddress, &addrLen);
+       
+        m_query.decode(buffer, nbytes);
+        m_query.asString();
+
+        m_resolver.process(m_query, m_response);
+
+        m_response.asString();
+        memset(buffer, 0, BUFFER_SIZE);
+        nbytes = m_response.code(buffer);
+
+        sendto(m_sockfd, buffer, nbytes, 0, (struct sockaddr *) &clientAddress,
+               addrLen);
+    }
+}

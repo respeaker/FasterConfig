@@ -37,7 +37,7 @@ using namespace dns;
 using namespace std;
 
 void Application::parse_arguments(int argc, char** argv) throw (Exception) {
-
+#if 0
     if (argc != 3) {
 
         string text("Usage: dnsServer <port> <hostsFile>\n");
@@ -55,6 +55,8 @@ void Application::parse_arguments(int argc, char** argv) throw (Exception) {
     }
 
     m_filename.assign(argv[2]);
+#endif
+
 }
 
 void Application::run() throw (Exception) {
@@ -84,7 +86,6 @@ void Application::read_str_from_config_line(char* config_line, char* val) {
 
 
 void Application::read_config_file(char* config_filename, struct config_struct config) {
-#if 0
     FILE *fp;
     char buf[64];
 
@@ -97,7 +98,7 @@ void Application::read_config_file(char* config_filename, struct config_struct c
         if (buf[0] == '#' || strlen(buf) < 4) {
             continue;
         }
-        if (strstr(buf, "TBPL ")) {
+        if (strstr(buf, "DnsPort ")) {
             config.bytes_per_line = read_int_from_config_line(buf);
         }
         if (strstr(buf, "NUMIN ")) {
@@ -110,6 +111,5 @@ void Application::read_config_file(char* config_filename, struct config_struct c
             read_str_from_config_line(buf, config.llist_name);
         }
     }
-#endif
 }
 

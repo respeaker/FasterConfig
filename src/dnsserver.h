@@ -26,68 +26,64 @@
 */
 
 
-#include <iostream>
-#include <cstring>
-#include <sys/socket.h>
-#include <errno.h>
+#ifndef _DNS_SERVER_H
+#define	_DNS_SERVER_H
 
-#include "logger.h"
-#include "server.h"
-#include "resolver.h"
+#include <netinet/in.h>
 
-using namespace std;
-using namespace dns;
+#include "exception.h"
+#include "query.h"
+#include "response.h"
 
-void Server::init(int port) throw (Exception) {
+namespace dns {
 
-    Logger& logger = Logger::instance();
-    logger.trace("Server::init()");
+class Resolver;
 
-    m_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+/**
+ *  Server class is a socket server that receive queries and answer responses to
+ *  those queries. It has a @ref Query and a @ref Response class attributtes to
+ *  code and decode the messages received on the socket buffer.
+ */
+class DnsServer {
+public:
+    /**
+     *  Constructor.
+     *  Creates a socket Server.
+     *  @param resolver The object @ref Resolver from the application.
+     */
+    DnsServer(Resolver& resolver) : m_resolver(resolver)
+        { }
 
-    m_address.sin_family = AF_INET;
-    m_address.sin_addr.s_addr = INADDR_ANY;
-    m_address.sin_port = htons(port);
+    /**
+     *  Destructor
+     */
+    virtual ~DnsServer() { }
 
-    int rbind = bind(m_sockfd, (struct sockaddr *) & m_address,
-                     sizeof (struct sockaddr_in));
+    /**
+     *  Initializes the server creating a UDP datagram socket and binding it to
+     *  the INADDR_ANY address and the port passed.
+     *  @param port Port number where the socket is binded.
+     */
+    void init(int port) throw(Exception);
+
+    /**
+     *  The socket server runs in an infinite loop, waiting for queries and
+     *  handling them through the @ref Resolver and sending back the responses.
+     */
+    void run() throw();
     
-    if (rbind != 0) {
-        string text("Could not bind: ");
-        text += strerror(errno);
-        Exception e(text);
-        throw(e);
-    }
+private:
+    static const int BUFFER_SIZE = 1024;
 
-    cout << "Listening in port: " << port << ", sockfd: " << m_sockfd << endl;
+    struct sockaddr_in m_address;
+    int m_sockfd;
+
+    Query m_query;
+    Response m_response;
+
+    Resolver& m_resolver;
+};
 }
 
-void Server::run() throw () {
+#endif	/* _DNS_SERVER_H */
 
-    Logger& logger = Logger::instance();
-    logger.trace("Server::run()");
-    
-    cout << "DNS Server running..." << endl;
-
-    char buffer[BUFFER_SIZE];
-    struct sockaddr_in clientAddress;
-    socklen_t addrLen = sizeof (struct sockaddr_in);
-
-    while (true) {
-
-        int nbytes = recvfrom(m_sockfd, buffer, BUFFER_SIZE, 0,
-                     (struct sockaddr *) &clientAddress, &addrLen);
-       
-        m_query.decode(buffer, nbytes);
-        m_query.asString();
-
-        m_resolver.process(m_query, m_response);
-
-        m_response.asString();
-        memset(buffer, 0, BUFFER_SIZE);
-        nbytes = m_response.code(buffer);
-
-        sendto(m_sockfd, buffer, nbytes, 0, (struct sockaddr *) &clientAddress,
-               addrLen);
-    }
-}
