@@ -66,3 +66,50 @@ void Application::run() throw (Exception) {
     m_server.init(m_port);
     m_server.run();
 }
+
+int Application::read_int_from_config_line(char* config_line) {    
+    char prm_name[1024];
+    int val;
+    sscanf(config_line, "%s %d\n", prm_name, &val);
+    return val;
+}
+void Application::read_double_from_config_line(char* config_line, double* val) {    
+    char prm_name[1024];
+    sscanf(config_line, "%s %lf\n", prm_name, val);
+}
+void Application::read_str_from_config_line(char* config_line, char* val) {    
+    char prm_name[1024];
+    sscanf(config_line, "%s %s\n", prm_name, val);
+}
+
+
+void Application::read_config_file(char* config_filename, struct config_struct config) {
+#if 0
+    FILE *fp;
+    char buf[64];
+
+    if ((fp=fopen(config_filename, "r")) == NULL) {
+        fprintf(stderr, "Failed to open config file %s", config_filename);
+        exit(EXIT_FAILURE);
+    }
+    while(! feof(fp)) {
+        fgets(buf, CONFIG_LINE_BUFFER_SIZE, fp);
+        if (buf[0] == '#' || strlen(buf) < 4) {
+            continue;
+        }
+        if (strstr(buf, "TBPL ")) {
+            config.bytes_per_line = read_int_from_config_line(buf);
+        }
+        if (strstr(buf, "NUMIN ")) {
+            read_double_from_config_line(buf, &config.numin);
+        }
+        if (strstr(buf, "NUMAX ")) {
+            read_double_from_config_line(buf, &config.numax);
+        }
+        if (strstr(buf, "LLIST_NAME ")) {
+            read_str_from_config_line(buf, config.llist_name);
+        }
+    }
+#endif
+}
+

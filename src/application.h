@@ -65,6 +65,11 @@ public:
      */
     void run() throw(Exception);
 
+
+    int read_int_from_config_line(char* config_line);
+    void read_double_from_config_line(char* config_line, double* val);
+    void read_str_from_config_line(char* config_line, char* val) ;
+    void read_config_file(char* config_filename, struct config_struct config) ;
 private:
     int m_port;
     std::string m_filename;
