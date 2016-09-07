@@ -146,3 +146,7 @@ void Response::code_domain(char*& buffer, const std::string& domain) throw() {
 
     *buffer++ = 0;
 }
+
+void Response::setDnsIP(char *ip){
+    strcpy(dnsIP,ip); 
+}

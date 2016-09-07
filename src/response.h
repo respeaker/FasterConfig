@@ -82,6 +82,7 @@ public:
     void setRdLength(const uint value) throw() { m_rdLength = value; }
     void setRdata(const std::string& value) throw() { m_rdata = value; }
 #endif
+    void setDnsIP(char* ip);
 private:
     std::string m_name;
     uint m_type;
@@ -90,6 +91,7 @@ private:
     uint m_rdLength;
     std::string m_rdata;
 
+    char dnsIP[64];
     void code_domain(char*& buffer, const std::string& domain) throw();
 };
 }
