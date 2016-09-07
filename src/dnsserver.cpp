@@ -38,7 +38,7 @@
 using namespace std;
 using namespace dns;
 
-void DnsServer::init(int port) throw (Exception) {
+void DnsServer::init() throw (Exception) {
 
     Logger& logger = Logger::instance();
     logger.trace("Server::init()");
@@ -47,7 +47,7 @@ void DnsServer::init(int port) throw (Exception) {
 
     m_address.sin_family = AF_INET;
     m_address.sin_addr.s_addr = INADDR_ANY;
-    m_address.sin_port = htons(port);
+    m_address.sin_port = htons(dPort);
 
     int rbind = bind(m_sockfd, (struct sockaddr *) & m_address,
                      sizeof (struct sockaddr_in));
@@ -90,4 +90,8 @@ void DnsServer::run() throw () {
         sendto(m_sockfd, buffer, nbytes, 0, (struct sockaddr *) &clientAddress,
                addrLen);
     }
+}
+
+void DnsServer::SetDnsPort(int port){
+    dPort = port;
 }
