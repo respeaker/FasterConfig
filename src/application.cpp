@@ -99,16 +99,16 @@ void Application::read_config_file(char* config_filename, struct config_struct c
             continue;
         }
         if (strstr(buf, "DnsPort ")) {
-            config.bytes_per_line = read_int_from_config_line(buf);
         }
-        if (strstr(buf, "NUMIN ")) {
-            read_double_from_config_line(buf, &config.numin);
+        if (strstr(buf, "DnsIP ")) {
         }
-        if (strstr(buf, "NUMAX ")) {
-            read_double_from_config_line(buf, &config.numax);
+        if (strstr(buf, "HttpPort ")) {
         }
-        if (strstr(buf, "LLIST_NAME ")) {
-            read_str_from_config_line(buf, config.llist_name);
+        if (strstr(buf, "ReUrl ")) {
+        }
+        if (strstr(buf, "gatewayIP ")) {
+        }
+        if (strstr(buf, "ErrorHtml ")) {
         }
     }
 }
