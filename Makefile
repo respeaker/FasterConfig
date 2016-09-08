@@ -9,7 +9,7 @@
 
 SOURCEDIR = ./src
 CXXSOURCES = main.cpp application.cpp logger.cpp message.cpp \
-             query.cpp resolver.cpp response.cpp server.cpp
+             query.cpp resolver.cpp response.cpp dnsserver.cpp
 
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
 CXXFLAGS = -g $(INCLUDEDIRS)
@@ -48,15 +48,15 @@ resolver.o: $(SOURCEDIR)/resolver.cpp
 response.o: $(SOURCEDIR)/response.cpp
 	$(CXX) $(CXXFLAGS) -c -o response.o $(SOURCEDIR)/response.cpp
 
-server.o: $(SOURCEDIR)/server.cpp
-	$(CXX) $(CXXFLAGS) -c -o server.o $(SOURCEDIR)/server.cpp
+dnsserver.o: $(SOURCEDIR)/dnsserver.cpp
+	$(CXX) $(CXXFLAGS) -c -o dnsserver.o $(SOURCEDIR)/dnsserver.cpp
 
 #
 # Clean target
 #
 
 clean:
-	$(RM) -f $(CXXOBJECTS) dnsserver dnsserver.log
+	$(RM) -f $(CXXOBJECTS) fasterconfig fasterconfig.log
 
 #
 # Doxygen target
