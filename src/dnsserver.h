@@ -72,7 +72,6 @@ public:
      */
     void run() throw();
     
-    void SetDnsPort(int port);
 private:
     static const int BUFFER_SIZE = 1024;
 
@@ -83,8 +82,6 @@ private:
     Response m_response;
 
     Resolver& m_resolver;
-
-    int dPort;
 };
 }
 

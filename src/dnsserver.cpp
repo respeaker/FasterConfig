@@ -32,13 +32,13 @@
 #include <errno.h>
 
 #include "logger.h"
-#include "server.h"
+#include "dnsserver.h"
 #include "resolver.h"
 
 using namespace std;
 using namespace dns;
 
-void DnsServer::init() throw (Exception) {
+void DnsServer::init(int dPort) throw (Exception) {
 
     Logger& logger = Logger::instance();
     logger.trace("Server::init()");
@@ -59,7 +59,7 @@ void DnsServer::init() throw (Exception) {
         throw(e);
     }
 
-    cout << "Listening in port: " << port << ", sockfd: " << m_sockfd << endl;
+    cout << "Listening in port: " << dPort << ", sockfd: " << m_sockfd << endl;
 }
 
 void DnsServer::run() throw () {
@@ -92,6 +92,4 @@ void DnsServer::run() throw () {
     }
 }
 
-void DnsServer::SetDnsPort(int port){
-    dPort = port;
-}
+
