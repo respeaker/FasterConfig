@@ -56,7 +56,14 @@ void Application::parse_arguments(int argc, char** argv) throw (Exception) {
 
     m_filename.assign(argv[2]);
 #endif
+    read_config_file("/etc/fasterconfig/fasterconfig.conf");
 
+    printf("DnsPort:%d\n", dnsPort); 
+    printf("DnsIP:%s\n", dnsIP); 
+    printf("HttpPort:%d\n", HttpPort); 
+    printf("ReUrl:%s\n", ReUrl); 
+    printf("gatewayIP:%s\n", gatewayIP); 
+    printf("ErrorHtml:%s\n", ErrorHtml); 
 }
 
 void Application::run() throw (Exception) {
@@ -85,7 +92,7 @@ void Application::read_str_from_config_line(char* config_line, char* val) {
 }
 
 
-void Application::read_config_file(char* config_filename, struct config_struct config) {
+void Application::read_config_file(const char* config_filename) {
     FILE *fp;
     char buf[64];
 
@@ -94,21 +101,27 @@ void Application::read_config_file(char* config_filename, struct config_struct c
         exit(EXIT_FAILURE);
     }
     while(! feof(fp)) {
-        fgets(buf, CONFIG_LINE_BUFFER_SIZE, fp);
+        fgets(buf, 1024, fp);
         if (buf[0] == '#' || strlen(buf) < 4) {
             continue;
         }
         if (strstr(buf, "DnsPort ")) {
+            dnsPort = read_int_from_config_line(buf);
         }
         if (strstr(buf, "DnsIP ")) {
+            read_str_from_config_line(buf, dnsIP);
         }
         if (strstr(buf, "HttpPort ")) {
+            HttpPort = read_int_from_config_line(buf);
         }
         if (strstr(buf, "ReUrl ")) {
+            read_str_from_config_line(buf, ReUrl);
         }
         if (strstr(buf, "gatewayIP ")) {
+            read_str_from_config_line(buf, gatewayIP);  
         }
         if (strstr(buf, "ErrorHtml ")) {
+            read_str_from_config_line(buf, ErrorHtml);
         }
     }
 }
