@@ -70,7 +70,7 @@ public:
     void read_str_from_config_line(char* config_line, char* val) ;
     void read_config_file(const char* config_filename) ;
 
-    
+    int getNetworkStatus();
 private:
     int m_port;
     std::string m_filename;
