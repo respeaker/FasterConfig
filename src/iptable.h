@@ -28,6 +28,8 @@
 #include <stdlib.h>
 #include <iostream>
 
+#define WD_SHELL_PATH "/bin/sh"
+
 namespace dns { 
 class Iptable {
 public:
@@ -36,6 +38,9 @@ public:
      */
     virtual ~Iptable();
     Iptable();
+
+    int iptables_do_command(const char *format, ...);
+    int execute(const char *cmd_line, int quiet);
 
 private:
 
