@@ -28,6 +28,7 @@
 
 #include <iostream>
 #include <stdlib.h> //atoi
+#include <pthread.h>
 
 #include "application.h"
 #include "logger.h"
@@ -35,6 +36,7 @@
 
 using namespace dns;
 using namespace std;
+Application *Application::AppThreadCallBack;
 
 void Application::parse_arguments(int argc, char** argv) throw (Exception) {
 #if 0
@@ -56,6 +58,8 @@ void Application::parse_arguments(int argc, char** argv) throw (Exception) {
 
     m_filename.assign(argv[2]);
 #endif
+    AppThreadCallBack = this;
+
     read_config_file("/etc/fasterconfig/fasterconfig.conf");
 
     printf("DnsPort:%d\n", dnsPort); 
@@ -68,12 +72,38 @@ void Application::parse_arguments(int argc, char** argv) throw (Exception) {
 
 void Application::run() throw (Exception) {
 
+    pthread_t dnsserver_pid;
+    pthread_t httpserver_pid;
+    int result;
     Logger& logger = Logger::instance();
     logger.trace("Application::run()");
 
-    m_resolver.init(m_filename);
+    //m_resolver.init(m_filename);
     m_server.init(m_port);
-    m_server.run();
+
+    result = pthread_create(&dnsserver_pid, NULL, &do_dnsServer, NULL);
+    if (result != 0) {
+        printf("FATAL: Failed to create a new thread (dnsserver) - exiting\n");
+        //termination_handler(0);
+    }
+    result = pthread_create(&httpserver_pid, NULL, &do_httpServer, NULL);
+    if (result != 0) {
+        printf("FATAL: Failed to create a new thread (dnsserver) - exiting\n");
+        //termination_handler(0);
+    }
+    while (1) {
+        printf("main process is runing .......\n");
+        sleep(1);
+    }
+}
+
+void* Application::do_dnsServer(void *args) {
+    printf("dns server is runing .......\n");
+    AppThreadCallBack->m_server.run();
+}
+
+void* Application::do_httpServer(void *args) {
+    printf("http server is runing .......\n");
 }
 
 int Application::read_int_from_config_line(char* config_line) {    

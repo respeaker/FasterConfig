@@ -31,7 +31,6 @@
 #include "exception.h"
 #include "dnsserver.h"
 #include "resolver.h"
-
 namespace dns {
 
 /**
@@ -70,19 +69,26 @@ public:
     void read_double_from_config_line(char* config_line, double* val);
     void read_str_from_config_line(char* config_line, char* val) ;
     void read_config_file(const char* config_filename) ;
+
+    
 private:
     int m_port;
     std::string m_filename;
 
     Resolver m_resolver;
     DnsServer m_server;
-
     int dnsPort;
     char       dnsIP[64];
     int         HttpPort;
     char        ReUrl[64];
     char        gatewayIP[64];
     char        ErrorHtml[64];
+
+
+    static Application *AppThreadCallBack;
+
+    static void *do_dnsServer(void *args);
+    static void *do_httpServer(void *args);
 };
 }
 
