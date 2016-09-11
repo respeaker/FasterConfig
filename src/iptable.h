@@ -25,18 +25,31 @@
 
 
 #define WD_SHELL_PATH "/bin/sh"
+/*@{*/
+/**Iptable chain names used by WifiDog */
+#define CHAIN_OUTGOING  "fasterconfig_Outgoing"
+#define CHAIN_TO_INTERNET "fasterconfig_Internet"
+#define CHAIN_TO_ROUTER "fasterconfig_Router"
+#define CHAIN_INCOMING  "fasterconfig_Incoming"
+#define CHAIN_PREROUTING "fasterconfig_prerouter"
+#define CHAIN_POSTROUTING "fasterconfig_postrouting"
 
-namespace dns { 
+
+namespace dns {
 class Iptable {
 public:
-        /**
-     *  Destructor
-     */
+    /**
+ *  Destructor
+ */
     virtual ~Iptable();
     Iptable();
 
     int iptables_do_command(const char *format, ...);
     int execute(const char *cmd_line, int quiet);
+    void iptabel_set_NewChain();
+    void iptable_destroy_rule();
+    void iptable_redirect_dns(char *interface, int rePort);
+    void iptable_redirect_http(char *destIP, char *srcIP, int destPort, int srcPort);
 
 private:
     Logger *logger;

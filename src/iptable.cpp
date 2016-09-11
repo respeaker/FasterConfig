@@ -127,4 +127,103 @@ int Iptable::execute(const char *cmd_line, int quiet)
         return 1;
     }
 }
+void Iptable::iptabel_set_NewChain() {
+        /* Create new chains */
+    iptables_do_command("-t nat -N " CHAIN_OUTGOING);
+    iptables_do_command("-t nat -N " CHAIN_PREROUTING); 
+    iptables_do_command("-t nat -N " CHAIN_INCOMING); 
+    iptables_do_command("-t nat -N " CHAIN_POSTROUTING); 
+}
 
+void Iptable::iptable_destroy_rule() {
+    iptables_do_command("-t nat -F " CHAIN_OUTGOING);
+    iptables_do_command("-t nat -F " CHAIN_PREROUTING); 
+    iptables_do_command("-t nat -F " CHAIN_INCOMING); 
+    iptables_do_command("-t nat -F " CHAIN_POSTROUTING); 
+}
+
+/**
+ * iptables -t nat -I PREROUTING -i br-lan -p udp -m udp
+ * --dport 53 -j REDIRECT --to-ports 9000 
+ *  
+ * iptables -t nat -I PREROUTING -i br-lan -p tcp -m tcp --dport 
+ * 53 -j REDIRECT --to-ports 9000 
+ *  
+ * iptables -t nat -A OUTPUT -p udp --dport 9000 -j DNAT --to 
+ * 127.0.0.1:53 
+ *  
+ * iptables -t nat -A OUTPUT -p tcp --dport 9000 -j DNAT --to 
+ * 127.0.0.1:53 
+ * 
+ * @author Baozhu (9/11/2016)
+ * 
+ * @param interface 
+ * @param rePort 
+ */
+void Iptable::iptable_redirect_dns(char *interface, int rePort) {
+    char *command = NULL;
+    asprintf(&command, " -t nat -I " CHAIN_PREROUTING
+             " -i %s -p udp -m udp --dport 53 -j REDIRECT --to-ports %d", interface, rePort);
+    iptables_do_command(command);
+
+    asprintf(&command, " -t nat -I " CHAIN_PREROUTING
+             " -i %s -p tcp -m tcp --dport 53 -j REDIRECT --to-ports %d", interface, rePort);
+    iptables_do_command(command);
+
+    asprintf(&command, " -t nat -A " CHAIN_OUTGOING
+             " -p udp --dport %d -j DNAT --to 127.0.0.1:53", rePort);
+    iptables_do_command(command);
+
+    asprintf(&command, " -t nat -A " CHAIN_OUTGOING
+             " -p tcp --dport %d -j DNAT --to 127.0.0.1:53", rePort);
+    iptables_do_command(command);
+    free(command);
+}
+
+/**
+ * iptables -t nat -A POSTROUTING -s 172.31.255.240 -j SNAT 
+ * --to-source 192.168.100.1 
+ *  
+ * iptables -t nat -A OUTPUT -d 172.31.255.240 -j DNAT 
+ * --to-destination 192.168.100.1 
+ *  
+ * iptables -t nat -A OUTPUT -p tcp --dport 80 -j DNAT 
+ * --to-destination 192.168.100.1:80 
+ *  
+ * iptables -t nat -A INPUT -p tcp --dport 80 -j DNAT 
+ * --to-destination 192.168.100.1:80 
+ *  
+ * iptables -t nat -A PREROUTING -p tcp --dport 80 -j NETMAP 
+ * --to 192.168.100.1 
+ * 
+ * @author Baozhu (9/11/2016)
+ * 
+ * @param destIP 
+ * @param srcIP 
+ * @param destPort 
+ * @param srcPort 
+ */
+void Iptable::iptable_redirect_http(char *destIP,char *srcIP,int destPort, int srcPort) {
+    char *command = NULL;
+    asprintf(&command, " -t nat -A " CHAIN_POSTROUTING
+             " -s %s -j SNAT --to-source %s", CHAIN_POSTROUTING,destIP, srcIP); 
+    iptables_do_command(command);
+
+    asprintf(&command, " -t nat -A " CHAIN_OUTGOING
+             "  -d %s -j DNAT --to-destination %s", destIP, srcIP); 
+    iptables_do_command(command);
+
+    asprintf(&command, " -t nat -A " CHAIN_OUTGOING
+             "  -p tcp --dport %d -j DNAT --to-destination %s:%d", destPort, srcIP, srcPort); 
+    iptables_do_command(command);
+
+    asprintf(&command, " -t nat -A " CHAIN_INCOMING
+             "  -p tcp --dport %d -j DNAT --to-destination %s:%d", destPort, srcIP, srcPort); 
+    iptables_do_command(command);
+
+    asprintf(&command, " -t nat -A " CHAIN_PREROUTING
+             " -p tcp --dport %d -j NETMAP --to %s ", destPort, srcIP); 
+    iptables_do_command(command);
+
+    free(command);
+}
