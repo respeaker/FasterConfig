@@ -27,6 +27,8 @@
 #include <string>
 #include <stdlib.h>
 #include <iostream>
+#include "logger.h"
+
 
 #define WD_SHELL_PATH "/bin/sh"
 
@@ -43,6 +45,7 @@ public:
     int execute(const char *cmd_line, int quiet);
 
 private:
+    Logger *logger;
 
 protected:
 };

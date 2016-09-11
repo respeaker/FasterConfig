@@ -8,7 +8,7 @@ CC=g++
 CC_FLAG=-Wall  
   
 PRG=iptable_test
-OBJ=main.cpp ../../src/iptable.cpp  
+OBJ=main.cpp ../../src/iptable.cpp  ../../src/logger.cpp
   
 $(PRG):$(OBJ)  
 	$(CC) -I$(INC) $(LIB) -o $@ $(OBJ)  

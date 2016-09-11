@@ -45,13 +45,12 @@
 #include <netdb.h>
 
 
-#include "logger.h"
 #include "iptable.h"
 
 using namespace dns;
 using namespace std;
-Iptable::Iptable() { 
-
+Iptable::Iptable() {
+     logger = &Logger::instance(); 
 }
 Iptable::~Iptable() {
 
