@@ -9,11 +9,13 @@
 
 SOURCEDIR = ./src
 CXXSOURCES = main.cpp application.cpp logger.cpp message.cpp \
-             query.cpp resolver.cpp response.cpp dnsserver.cpp
+             query.cpp resolver.cpp response.cpp dnsserver.cpp \
+			 httpd.cpp  iptable.cpp
 
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
 CXXFLAGS = -g $(INCLUDEDIRS)
-CXX = g++
+CXX = arm-linux-gnueabihf-g++
+LIBS = -lpthread
 LDFLAGS = $(LIBDIRS) $(LIBS)
 
 #
@@ -51,6 +53,11 @@ response.o: $(SOURCEDIR)/response.cpp
 dnsserver.o: $(SOURCEDIR)/dnsserver.cpp
 	$(CXX) $(CXXFLAGS) -c -o dnsserver.o $(SOURCEDIR)/dnsserver.cpp
 
+httpd.o: $(SOURCEDIR)/httpd.cpp
+	$(CXX) $(CXXFLAGS) -c -o httpd.o $(SOURCEDIR)/httpd.cpp
+
+iptable.o: $(SOURCEDIR)/iptable.cpp
+	$(CXX) $(CXXFLAGS) -c -o iptable.o $(SOURCEDIR)/iptable.cpp
 #
 # Clean target
 #
