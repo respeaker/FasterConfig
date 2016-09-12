@@ -295,10 +295,16 @@ public:
     void _httpd_freeVariables(httpVar *var);
     void httpdFreeVariables(request *r);
     void httpdEndRequest(request *r);
+
+    void setHtmlPath(char *path);
+    void setReUrl(char *reurl);
 private:
     /* The internal web server */
     httpd * webserver = NULL;
     Logger *logger;
+
+    char htmlPath[64];
+    char htmlreurl[512];
 
     static void* thread_httpd(void *args);
 

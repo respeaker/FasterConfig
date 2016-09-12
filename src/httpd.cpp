@@ -415,7 +415,7 @@ void Httpd::send_http_page(request *r, const char *title, const char *message) {
     struct stat stat_info;
     int fd;
     ssize_t written;
-    fd = open("/etc/fasterconfig/fasterconfig-msg.html", O_RDONLY);
+    fd = open(htmlPath, O_RDONLY); 
     if (fd == -1) {
         debug(LOG_CRIT, "Failed to open HTML message file /etc/fasterconfig/fasterconfig-msg.html: %s", strerror(errno));
         return;
@@ -1336,7 +1336,7 @@ void Httpd::http_callback_404(httpd *webserver, request *r, int error_code) {
     //snprintf(tmp_url, (sizeof(tmp_url) - 1), "http://%s%s%s%s",
     //         r->request.host, r->request.path, r->request.query[0] ? "?" : "", r->request.query);
     debug(LOG_INFO, "You want to visit: %s%s", r->request.host, r->request.path); 
-    snprintf(tmp_url,(sizeof(tmp_url) - 1),"http://192.168.100.1:2048/fasterconfig"); 
+    snprintf(tmp_url,(sizeof(tmp_url) - 1),htmlreurl); 
     debug(LOG_INFO,"%s",tmp_url); 
     url = httpdUrlEncode(tmp_url);
     debug(LOG_INFO,"%s",url); 
@@ -1483,4 +1483,9 @@ char * Httpd::_httpd_escape(const char *str){
     *q++ = 0;                   /* Terminate */
     return result;
 }
-
+void  Httpd::setHtmlPath(char *path) {
+    strcpy(htmlPath,path); 
+}
+void Httpd::setReUrl(char *reurl) {
+    strcpy(htmlreurl, reurl); 
+}
