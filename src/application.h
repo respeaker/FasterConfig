@@ -18,6 +18,7 @@
 #include "exception.h"
 #include "dnsserver.h"
 #include "resolver.h"
+
 namespace dns {
 
 /**
@@ -44,7 +45,7 @@ public:
      *  @param argc Number of arguments passed
      *  @param argv Array of arguments
      */
-    void parse_arguments(int argc, char** argv) throw (Exception);
+    void getConfig() throw (Exception);
 
     /**
      *  Starts the application. Initialize the @ref Resolver and the @ref Server.
@@ -57,7 +58,7 @@ public:
     void read_str_from_config_line(char* config_line, char* val) ;
     void read_config_file(const char* config_filename) ;
 
-    int getNetworkStatus();
+    int getNetworkStatus(const char *interfaceName);
 private:
     int m_port;
     std::string m_filename;
@@ -70,6 +71,8 @@ private:
     char        ReUrl[64];
     char        gatewayIP[64];
     char        ErrorHtml[64];
+    char        staInterface[64];
+    char        apInterface[64];
 
 
     static Application *AppThreadCallBack;
