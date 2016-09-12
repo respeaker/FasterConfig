@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 
     try {
         dns::Application* application = new dns::Application();
-        application->parse_arguments(argc, argv);
+        application->getConfig(); 
         application->run();
     }
     catch (dns::Exception& e) {
