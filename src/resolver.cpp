@@ -160,6 +160,12 @@ void Resolver::process(const Query& query, Response& response) throw () {
     string text("Resolver::process()");
     text += query.asString();
     logger.trace(text);
+
+   // response.setID( query.getID() );
+
+    cout << "name:" <<  query.getQName() << endl;
+    response.setName( query.getQName() );
+    response.setHeader(query.getHeader());
 #if 0
     string qName = query.getQName();
     string ipAddress = convert(qName);
