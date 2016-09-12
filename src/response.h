@@ -60,6 +60,7 @@ public:
      *  @return The string text with the response information.
      */
     std::string asString() const throw();
+    void setName(const std::string& value) throw() { m_name = value; }
 #if 0
     void setRCode(Code code) throw() { m_rcode = code; }
     void setName(const std::string& value) throw() { m_name = value; }

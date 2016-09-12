@@ -108,6 +108,7 @@ public:
     void setNsCount(uint count) throw() { usDNS.usHeader.usNSCOUNT = count; }
     void setArCount(uint count) throw() { usDNS.usHeader.usARCOUNT = count; }
 
+    void setHeader(struct DNSHeader header) {usDNS.usHeader = header;}
 protected:
     static const uint HDR_OFFSET = 12;
     uint m_opcode;

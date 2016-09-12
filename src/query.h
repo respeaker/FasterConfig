@@ -63,6 +63,8 @@ public:
      * init 
      */
     void init();
+    const std::string& getQName() const throw() { return m_qName; }
+    struct DNSHeader  getHeader() const throw() { return usDNS.usHeader; }
 #if 0
     const std::string& getQName() const throw() { return usDNS.usBase.usNAME; }
     const uint getQType() const throw() { return usDNS.usBase.usTYPE; }

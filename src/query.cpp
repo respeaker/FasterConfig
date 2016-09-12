@@ -63,14 +63,17 @@ void Query::decode(const char* buffer, int size) throw() {
     decode_hdr(buffer);
 
     buffer += HDR_OFFSET;
-
+#if 0
     if (ntohs(usDNS.usHeader.usTransID) == usCurrentProcID
                         //RFC1035 4.1.1(Header section format)
          && (((ntohs(usDNS.usHeader.usFlags) & 0xfb7f) == 0x8100 ) ||
                 ((ntohs(usDNS.usHeader.usFlags) & 0xfb7f) == 0x8001 ) ||
                               ((ntohs(usDNS.usHeader.usFlags) & 0xfb7f) == 0x0001 ))
         && ntohs(usDNS.usHeader.usQDCOUNT) >= 0
-        && ntohs(usDNS.usHeader.usANCOUNT) >= 0) {
+        && ntohs(usDNS.usHeader.usANCOUNT) >= 0) 
+#endif
+        if (ntohs(usDNS.usHeader.usQDCOUNT) >= 0 ) 
+        {
          cout << "malloc qusestion section1" << endl;
         //analyze qusestion section
         if (usDNS.usHeader.usQDCOUNT != 0) {
@@ -105,6 +108,7 @@ void Query::decode(const char* buffer, int size) throw() {
             usDNS.usAnswerSection[i].usCLASS = get16bits(buffer);
         }
     }
+        cout << m_qName << endl;
 }
 
 void Query::decode_qname(const char*& buffer,

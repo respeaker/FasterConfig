@@ -71,10 +71,10 @@ void Message::code_hdr(char* buffer) throw () {
     //put16bits(buffer, fields);
     put16bits(buffer, 0x8580);
 
-    put16bits(buffer, usDNS.usHeader.usQDCOUNT);
-    put16bits(buffer, usDNS.usHeader.usANCOUNT);
-    put16bits(buffer, usDNS.usHeader.usNSCOUNT);
-    put16bits(buffer, usDNS.usHeader.usANCOUNT);
+    put16bits(buffer, 0x0001);
+    put16bits(buffer, 0x0001);
+    put16bits(buffer, 0x0000);
+    put16bits(buffer, 0x0000);
 }                          
 
 void Message::log_buffer(const char* buffer, int size) throw () {
