@@ -43,7 +43,10 @@
 using namespace dns;
 using namespace std;
 Iptable::Iptable() {
-     logger = &Logger::instance(); 
+     logger = &Logger::instance();
+     iptable_destroy_rule(); 
+     iptabel_set_NewChain();
+     isBlock = 0;
 }
 Iptable::~Iptable() {
 
@@ -140,6 +143,11 @@ void Iptable::iptable_destroy_rule() {
     iptables_do_command("-t nat -F " CHAIN_PREROUTING); 
     iptables_do_command("-t nat -F " CHAIN_INCOMING); 
     iptables_do_command("-t nat -F " CHAIN_POSTROUTING); 
+
+    iptables_do_command("-t nat -X " CHAIN_OUTGOING);
+    iptables_do_command("-t nat -X " CHAIN_PREROUTING); 
+    iptables_do_command("-t nat -X " CHAIN_INCOMING); 
+    iptables_do_command("-t nat -X " CHAIN_POSTROUTING); 
 }
 
 /**
@@ -203,10 +211,10 @@ void Iptable::iptable_redirect_dns(char *interface, int rePort) {
  * @param destPort 
  * @param srcPort 
  */
-void Iptable::iptable_redirect_http(char *destIP,char *srcIP,int destPort, int srcPort) {
+void Iptable::iptable_redirect_http(char *destIP,char *srcIP, int srcPort) {
     char *command = NULL;
     asprintf(&command, " -t nat -A " CHAIN_POSTROUTING
-             " -s %s -j SNAT --to-source %s", CHAIN_POSTROUTING,destIP, srcIP); 
+             " -s %s -j SNAT --to-source %s",destIP, srcIP); 
     iptables_do_command(command);
 
     asprintf(&command, " -t nat -A " CHAIN_OUTGOING
@@ -214,15 +222,15 @@ void Iptable::iptable_redirect_http(char *destIP,char *srcIP,int destPort, int s
     iptables_do_command(command);
 
     asprintf(&command, " -t nat -A " CHAIN_OUTGOING
-             "  -p tcp --dport %d -j DNAT --to-destination %s:%d", destPort, srcIP, srcPort); 
+             "  -p tcp --dport 80  -j DNAT --to-destination %s:%d", srcIP, srcPort); 
     iptables_do_command(command);
 
     asprintf(&command, " -t nat -A " CHAIN_INCOMING
-             "  -p tcp --dport %d -j DNAT --to-destination %s:%d", destPort, srcIP, srcPort); 
+             "  -p tcp --dport 80 -j DNAT --to-destination %s:%d",  srcIP, srcPort); 
     iptables_do_command(command);
 
     asprintf(&command, " -t nat -A " CHAIN_PREROUTING
-             " -p tcp --dport %d -j NETMAP --to %s ", destPort, srcIP); 
+             " -p tcp --dport 80 -j NETMAP --to %s ", srcIP); 
     iptables_do_command(command);
 
     free(command);

@@ -49,7 +49,9 @@ public:
     void iptabel_set_NewChain();
     void iptable_destroy_rule();
     void iptable_redirect_dns(char *interface, int rePort);
-    void iptable_redirect_http(char *destIP, char *srcIP, int destPort, int srcPort);
+    void iptable_redirect_http(char *destIP, char *srcIP, int srcPort);
+
+    int isBlock;
 
 private:
     Logger *logger;
