@@ -81,13 +81,13 @@ void Logger::_debug(const char *filename, int line, int level, const char *forma
         sigprocmask(SIG_BLOCK, &block_chld, NULL);
         
         if (level <= LOG_WARNING) {
-            fprintf(stderr, "(%s:%d) ",filename, line);
+            fprintf(stderr, "[%s:%d] ",filename, line);
             va_start(vlist, format);
             vfprintf(stderr, format, vlist);
             va_end(vlist);
             fputc('\n', stderr);
         } else if (debugconf.log_stderr) {
-            fprintf(stderr, "(%s:%d) ",filename, line);
+            fprintf(stderr, "[%s:%d] ",filename, line);
             va_start(vlist, format);
             vfprintf(stderr, format, vlist);
             va_end(vlist);
