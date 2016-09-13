@@ -19,11 +19,54 @@
 
 #include <netinet/in.h>
 
-#include "exception.h"
-#include "query.h"
-#include "response.h"
+#include "logger.h"
 
 namespace dns {
+
+struct DNSHeaderFlags {
+    unsigned char usQR : 1;
+    unsigned char usOpcode : 4;
+    unsigned char usAA : 1;
+    unsigned char usTC : 1;
+    unsigned char usRD : 1;
+    unsigned char usRA : 1;
+    unsigned char usZ :3;
+    unsigned char usRCODE : 4;
+};
+
+struct DNSHeader {
+    unsigned short usTransID; //标识符
+    unsigned short usFlags; //各种标志位
+    unsigned short usQDCOUNT; //Question字段个数
+    unsigned short usANCOUNT; //Answer字段个数
+    unsigned short usNSCOUNT; //Authority字段个数
+    unsigned short usARCOUNT; //Additional字段个数
+};
+
+struct  DNSQuestionSection {
+     char*                   usNAME;
+    unsigned short          usTYPE;     //type
+    unsigned short          usCLASS;    //class
+    unsigned int            NameLength;
+};
+
+struct DNSAnswerSection{
+     char                    *usNAME; 
+    unsigned short          usTYPE;     //type
+    unsigned short          usCLASS;    //class
+    unsigned int            usTTL;
+    unsigned short          usRDLENGTH;
+     char*                   usRDATA;
+    unsigned int            NameLength;
+    unsigned int            RDdataLength;
+};
+
+struct DNS {
+    struct DNSHeader               usHeader;
+    struct DNSQuestionSection*      usQuestionSection;
+    struct DNSAnswerSection*        usAnswerSection;
+};
+
 
 class Resolver;
 
@@ -39,8 +82,7 @@ public:
      *  Creates a socket Server.
      *  @param resolver The object @ref Resolver from the application.
      */
-    DnsServer(Resolver& resolver) : m_resolver(resolver)
-        { }
+    DnsServer() { }
 
     /**
      *  Destructor
@@ -52,13 +94,23 @@ public:
      *  the INADDR_ANY address and the port passed.
      *  @param port Port number where the socket is binded.
      */
-    void init(int port) throw(Exception);
+    void init(int port);
 
     /**
      *  The socket server runs in an infinite loop, waiting for queries and
      *  handling them through the @ref Resolver and sending back the responses.
      */
-    void run() throw();
+    void run();
+
+private:
+    void decode_header(const char *buffer);
+    void decode_domain_name(const char *buffer);
+    void encode_header(char *buffer);
+    void encode_domain(char *&buffer, const std::string &domain);
+    int encode(char *buffer);
+    int get2byte(const char *&buffer);
+    void put2byte(char *&buffer, uint value);
+    void dump_buffer(const char *buffer, int size);
     
 private:
     static const int BUFFER_SIZE = 1024;
@@ -66,10 +118,15 @@ private:
     struct sockaddr_in m_address;
     int m_sockfd;
 
-    Query m_query;
-    Response m_response;
+    struct DNSHeader header;
 
-    Resolver& m_resolver;
+    std::string domainName;
+
+    Logger *logger;
+    //Query m_query;
+    //Response m_response;
+
+    //Resolver& m_resolver;
 };
 }
 
