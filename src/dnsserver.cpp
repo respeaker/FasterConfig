@@ -60,14 +60,16 @@ void DnsServer::run(){
         int nbytes = recvfrom(m_sockfd, buffer, BUFFER_SIZE, 0,
                      (struct sockaddr *) &clientAddress, &addrLen);
        
-        //m_query.decode(buffer, nbytes);
-        //m_query.asString();
-
-        //m_resolver.process(m_query, m_response);
-
-        //m_response.asString();
+        dump_buffer(buffer, nbytes);
+        decode_header(buffer);
+        decode_domain_name(buffer);
+        
         memset(buffer, 0, BUFFER_SIZE);
-        //nbytes = m_response.code(buffer);
+
+        encode_header(buffer);
+        nbytes = encode(buffer);
+        dump_buffer(buffer, nbytes);
+
 
         sendto(m_sockfd, buffer, nbytes, 0, (struct sockaddr *) &clientAddress,
                addrLen);
@@ -121,6 +123,7 @@ void DnsServer::decode_domain_name(const char* buffer) {
         if ((length & 0xc0) == 0) { //normal format
             domainName.append(decodeStr + 1, length); 
             domainName.append(1,'.');
+            decodeStr = decodeStr + length + 1;
         }
         else{ //compressed format,11000000 00000000, 
               //                  two bytes, 
@@ -144,7 +147,7 @@ void DnsServer::encode_header(char *buffer) {
 
     //flag is special
     put2byte(buffer, 0x8580);
-
+    header.usANCOUNT  = 1;
     put2byte(buffer, header.usQDCOUNT); 
     put2byte(buffer, header.usANCOUNT); 
     put2byte(buffer, header.usNSCOUNT); 
@@ -222,8 +225,8 @@ int DnsServer::encode(char *buffer) {
     put16bits(buffer, 0x0363);
     put16bits(buffer, 0x6f6d);
 #endif
-    *buffer = 0x00;
-    buffer += 1;
+    //*buffer = 0x00;
+    //buffer += 1;
     //put16bits(buffer, 0x0000);
 
     put2byte(buffer, 0x0100);
@@ -234,15 +237,13 @@ int DnsServer::encode(char *buffer) {
     put2byte(buffer, 0x0000);
     put2byte(buffer, 0x0000);
 
-    put2byte(buffer, 0x04c0);
-    put2byte(buffer, 0xa864);
-    *buffer = 0x01;
-#if 0
-    put16bits(buffer, 0x04ac); //172.31.255.240
-    put16bits(buffer, 0x1fff);
+
+
+    put2byte(buffer, 0x04ac); //172.31.255.240
+    put2byte(buffer, 0x1fff);
     *buffer = 0xf0;
-#endif
     buffer += 1;
+
 #if 0
     // Code Question section
     code_domain(buffer, m_name);
@@ -317,5 +318,5 @@ void DnsServer::dump_buffer(const char* buffer, int size) {
     }
     text << endl << setfill(' ');
     text << "---------------------------------";
-
+    cout << text.str() << endl;
 }
