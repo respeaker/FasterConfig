@@ -15,9 +15,7 @@
 #ifndef _DNS_APPLICATION_H
 #define	_DNS_APPLICATION_H
 
-#include "exception.h"
 #include "dnsserver.h"
-#include "resolver.h"
 
 namespace dns {
 
@@ -33,7 +31,7 @@ public:
      *  Constructor.
      *  Creates a Domain Server Application started from a terminal.
      */
-    Application() : m_server(m_resolver) { }
+    Application() { }
 
     /**
      *  Destructor
@@ -45,12 +43,12 @@ public:
      *  @param argc Number of arguments passed
      *  @param argv Array of arguments
      */
-    void getConfig() throw (Exception);
+    void getConfig();
 
     /**
      *  Starts the application. Initialize the @ref Resolver and the @ref Server.
      */
-    void run() throw(Exception);
+    void run() ;
 
 
     int read_int_from_config_line(char* config_line);
@@ -63,7 +61,6 @@ private:
     int m_port;
     std::string m_filename;
 
-    Resolver m_resolver;
     DnsServer m_server;
     int dnsPort;
     char       dnsIP[64];

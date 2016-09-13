@@ -39,7 +39,7 @@ using namespace dns;
 using namespace std;
 Application *Application::AppThreadCallBack;
 
-void Application::getConfig() throw(Exception) {
+void Application::getConfig() {
     AppThreadCallBack = this;
 
     read_config_file("/etc/fasterconfig/fasterconfig.conf");
@@ -59,26 +59,20 @@ void Application::getConfig() throw(Exception) {
     httpserver->setHtmlPath(ErrorHtml);
     httpserver->start();
 #endif
-#if 0
-    Logger &logger = Logger::instance();
-    logger.trace("Application::run()");
-
-    m_resolver.init("/etc/fasterconfig/hosts");
+#if 1
     m_server.init(dnsPort); 
-     AppThreadCallBack->m_server.run();
+    AppThreadCallBack->m_server.run();
 #endif
 }
 
-void Application::run() throw(Exception) {
+void Application::run() {
 
     Iptable *iptable =  new Iptable();
     pthread_t dnsserver_pid;
     pthread_t httpserver_pid;
     int result;
-    Logger &logger = Logger::instance();
-    logger.trace("Application::run()");
 
-    m_resolver.init("/etc/fasterconfig/hosts");
+
     m_server.init(dnsPort);
 
     result = pthread_create(&dnsserver_pid, NULL, &do_dnsServer, NULL);
