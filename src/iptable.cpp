@@ -135,7 +135,13 @@ void Iptable::iptabel_set_NewChain() {
     iptables_do_command("-t nat -N " CHAIN_OUTGOING);
     iptables_do_command("-t nat -N " CHAIN_PREROUTING); 
     iptables_do_command("-t nat -N " CHAIN_INCOMING); 
-    iptables_do_command("-t nat -N " CHAIN_POSTROUTING); 
+    iptables_do_command("-t nat -N " CHAIN_POSTROUTING);
+
+    iptables_do_command("-t nat -A OUTPUT       -j " CHAIN_OUTGOING);
+    iptables_do_command("-t nat -A PREROUTING   -j " CHAIN_PREROUTING); 
+    iptables_do_command("-t nat -A INPUT        -j " CHAIN_INCOMING); 
+    iptables_do_command("-t nat -A POSTROUTING  -j " CHAIN_POSTROUTING);    
+     
 }
 
 void Iptable::iptable_destroy_rule() {
@@ -144,6 +150,7 @@ void Iptable::iptable_destroy_rule() {
     iptables_do_command("-t nat -F " CHAIN_INCOMING); 
     iptables_do_command("-t nat -F " CHAIN_POSTROUTING); 
 
+    /*delete custom chain*/
     iptables_do_command("-t nat -X " CHAIN_OUTGOING);
     iptables_do_command("-t nat -X " CHAIN_PREROUTING); 
     iptables_do_command("-t nat -X " CHAIN_INCOMING); 
