@@ -59,7 +59,7 @@ void Application::getConfig() {
     httpserver->setHtmlPath(ErrorHtml);
     httpserver->start();
 #endif
-#if 1
+#if 0
     m_server.init(dnsPort); 
     AppThreadCallBack->m_server.run();
 #endif
@@ -112,6 +112,7 @@ void* Application::do_httpServer(void *args) {
     Httpd *httpserver = new Httpd(AppThreadCallBack->gatewayIP,
                                   AppThreadCallBack->HttpPort);
     httpserver->setHtmlPath(AppThreadCallBack->ErrorHtml);
+    httpserver->setReUrl(AppThreadCallBack->ReUrl);
     httpserver->start();
 }
 
