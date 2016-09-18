@@ -539,7 +539,7 @@ void Httpd::_httpd_sendHeaders(request *r, int contentLength, int modTime) {
 }
 
 int Httpd::_httpd_net_write(int sock, const char *buf, int len) {
-    debug(LOG_INFO,"%d:%s",len,buf);
+    //debug(LOG_INFO,"%d:%s",len,buf);
 
     return (write(sock, buf, len));
 }
@@ -1336,9 +1336,9 @@ void Httpd::http_callback_404(httpd *webserver, request *r, int error_code) {
     //snprintf(tmp_url, (sizeof(tmp_url) - 1), "http://%s%s%s%s",
     //         r->request.host, r->request.path, r->request.query[0] ? "?" : "", r->request.query);
     debug(LOG_INFO, "You want to visit: %s%s", r->request.host, r->request.path); 
-    snprintf(tmp_url,(sizeof(tmp_url) - 1),htmlreurl); 
-    debug(LOG_INFO,"%s",tmp_url); 
-    url = httpdUrlEncode(tmp_url);
+    snprintf(tmp_url,(sizeof(tmp_url) - 1),"%s",htmlreurl); 
+    debug(LOG_INFO,"%s",htmlreurl); 
+    url = httpdUrlEncode(htmlreurl);
     debug(LOG_INFO,"%s",url); 
             /* Re-direct them to auth server */
             char urlFragment[MAX_BUF];
@@ -1346,7 +1346,7 @@ void Httpd::http_callback_404(httpd *webserver, request *r, int error_code) {
             //                  config.gw_address, config.gw_port, config.gw_id, r->clientAddr, mac, url);
             snprintf(urlFragment,(sizeof(urlFragment) - 1), "config");
             debug(LOG_INFO,"%s",urlFragment);
-            http_send_redirect(r, tmp_url, "allow domain");
+            http_send_redirect(r, htmlreurl, "allow domain");
             return ; 
 #if 0
             if (!(mac = arp_get(r->clientAddr))) {
