@@ -46,12 +46,13 @@ typedef struct _debug_conf {
 } debugconf_t;
 
 
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 /** Used to output messages.
  * The messages will include the filename and line number, and will be sent to syslog if so configured in the config file 
  * @param level Debug level
  * @param format... sprintf like format string
  */
-#define debug(level, format...) logger->_debug(__FILE__, __LINE__, level, format)
+#define debug(level, format...) logger->_debug(__FILENAME__, __LINE__, level, format)
 
 
 
