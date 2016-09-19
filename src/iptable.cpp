@@ -217,6 +217,7 @@ void Iptable::iptable_redirect_dns(char *interface, int rePort) {
  */
 void Iptable::iptable_redirect_http(char *destIP,char *srcIP, int srcPort) {
     char *command = NULL;
+/*
     asprintf(&command, " -t nat -A " CHAIN_POSTROUTING
              " -s %s -j SNAT --to-source %s",destIP, srcIP); 
     iptables_do_command(command);
@@ -224,14 +225,14 @@ void Iptable::iptable_redirect_http(char *destIP,char *srcIP, int srcPort) {
     asprintf(&command, " -t nat -A " CHAIN_OUTGOING
              "  -d %s -j DNAT --to-destination %s", destIP, srcIP); 
     iptables_do_command(command);
-
+*/
     asprintf(&command, " -t nat -A " CHAIN_PREROUTING
-             "  -p tcp --dport 80 -j REDIRECT --to-ports %d", srcPort); 
+             "  -d  %s  -p tcp --dport 80 -j REDIRECT --to-ports %d", destIP , srcPort); 
     iptables_do_command(command);
-
+/*
     asprintf(&command, " -t nat -A " CHAIN_OUTGOING
              "  -d localhost -p tcp --dport 80 -j REDIRECT --to-ports  %d", srcPort); 
     iptables_do_command(command);
-
+*/
     free(command);
 }
