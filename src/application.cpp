@@ -51,7 +51,7 @@ void Application::getConfig() {
     printf("gatewayIP:%s\n", gatewayIP);
     printf("ErrorHtml:%s\n", ErrorHtml);
     printf("staInterface:%s\n", staInterface);
-    printf("staInterface:%s\n", apInterface);
+    printf("apInterface:%s\n", apInterface);
 /*http server simple test*/
 #if 0
     Httpd *httpserver = new Httpd(gatewayIP,
