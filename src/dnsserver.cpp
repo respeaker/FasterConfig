@@ -148,10 +148,11 @@ void DnsServer::encode_header(char *buffer) {
     //flag is special
     put2byte(buffer, 0x8580);
     header.usANCOUNT  = 1;
+    header.usARCOUNT  = 0;
     put2byte(buffer, header.usQDCOUNT); 
     put2byte(buffer, header.usANCOUNT); 
     put2byte(buffer, header.usNSCOUNT); 
-    put2byte(buffer, header.usANCOUNT); 
+    put2byte(buffer, header.usARCOUNT); 
 }
 
 /**
