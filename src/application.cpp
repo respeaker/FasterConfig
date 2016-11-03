@@ -27,6 +27,7 @@
 #include <netdb.h>
 #include <ifaddrs.h>
 #include <unistd.h>
+#include <glob.h>
 
 #include "application.h"
 #include "logger.h"
@@ -87,7 +88,7 @@ void Application::run() {
     }
     while (1) {
         //printf("main process is runing .......\n");
-        if (getNetworkStatus(staInterface)) {
+        if (islocked()) {
             iptable->iptable_destroy_rule();
             iptable->isBlock = 0;
         }
@@ -163,6 +164,9 @@ void Application::read_config_file(const char *config_filename) {
         if (strstr(buf, "ErrorHtml ")) {
             read_str_from_config_line(buf, ErrorHtml);
         }
+        if (strstr(buf, "lockfile ")) {
+            read_str_from_config_line(buf, lockfile); 
+        }
         if (strstr(buf, "staInterface ")) {
             read_str_from_config_line(buf, staInterface);
         }
@@ -173,35 +177,13 @@ void Application::read_config_file(const char *config_filename) {
 }
 
 
-int Application::getNetworkStatus(const char *interfaceName) {
-    struct ifaddrs *ifaddr, *ifa;
-    int family, s;
-    char host[NI_MAXHOST];
-
-    if (getifaddrs(&ifaddr) == -1) {
-        perror("getifaddrs");
-        return 0;
-    }
-
-
-    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
-        if (ifa->ifa_addr == NULL) continue;
-
-        s = getnameinfo(ifa->ifa_addr, sizeof(struct sockaddr_in), host, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);
-        
-        if ((strcmp(ifa->ifa_name, interfaceName) == 0) && (ifa->ifa_addr->sa_family == AF_INET)) {
-            if (s != 0) {
-                printf("getnameinfo() failed: %s\n", gai_strerror(s));
-                return 0;
-            }
-            printf("\tInterface : <%s>\n", ifa->ifa_name);
-            printf("\t  Address : <%s>\n", host);
-            return 1;
-        }
-    }
-
-    freeifaddrs(ifaddr);
-    return 0;
+int Application::islocked() {
+    glob_t results;
+    results.gl_pathc = 0;  
+    glob(lockfile, 0, NULL, &results); 
+    int file_found = results.gl_pathc == 1;
+    globfree(&results);
+    return file_found;
 }
 
 

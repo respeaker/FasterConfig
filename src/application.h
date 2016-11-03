@@ -56,7 +56,7 @@ public:
     void read_str_from_config_line(char* config_line, char* val) ;
     void read_config_file(const char* config_filename) ;
 
-    int getNetworkStatus(const char *interfaceName);
+    int islocked();
 private:
     int m_port;
     std::string m_filename;
@@ -68,6 +68,7 @@ private:
     char        ReUrl[64];
     char        gatewayIP[64];
     char        ErrorHtml[64];
+    char        lockfile[64];
     char        staInterface[64];
     char        apInterface[64];
 
