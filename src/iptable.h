@@ -51,8 +51,6 @@ public:
     void iptable_redirect_dns(char *interface, int rePort);
     void iptable_redirect_http(char *destIP, char *srcIP, int srcPort);
 
-    int isBlock;
-
 private:
     Logger *logger;
 

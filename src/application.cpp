@@ -72,7 +72,8 @@ void Application::run() {
     pthread_t dnsserver_pid;
     pthread_t httpserver_pid;
     int result;
-
+    isDestroied = 1;
+    isRedirected = 0;
 
     m_server.init(dnsPort);
 
@@ -86,18 +87,29 @@ void Application::run() {
         printf("FATAL: Failed to create a new thread (dnsserver) - exiting\n");
         return;
     }
+    int locked;
     while (1) {
-        //printf("main process is runing .......\n");
-        if (islocked()) {
-            iptable->iptable_destroy_rule();
-            iptable->isBlock = 0;
-        }
-        else {
-            if (iptable->isBlock == 0) {
-                iptable->iptable_redirect_dns(apInterface, dnsPort);
-                iptable->iptable_redirect_http(dnsIP, gatewayIP, HttpPort); 
-                iptable->isBlock = 1;
+        //make sure the same rule run only once
+        locked = islocked();
+        if (locked) {
+            if (isRedirected == 1) {
+                isDestroied = 0;
             }
+        } else {
+            if (isDestroied == 1) {
+                isRedirected = 0;
+            }
+        }
+
+        //printf("main process is runing .......\n");
+        if (locked == 0 && isDestroied != 1) {
+            isDestroied = 1;
+            iptable->iptable_destroy_rule();
+        }
+        if (locked == 1 && isRedirected != 1) {
+            isRedirected = 1;
+            iptable->iptable_redirect_dns(apInterface, dnsPort);
+            iptable->iptable_redirect_http(dnsIP, gatewayIP, HttpPort); 
         }
         sleep(1);
     }

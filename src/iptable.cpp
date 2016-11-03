@@ -46,7 +46,6 @@ Iptable::Iptable() {
      logger = &Logger::instance();
      iptable_destroy_rule(); 
      iptabel_set_NewChain();
-     isBlock = 0;
 }
 Iptable::~Iptable() {
 

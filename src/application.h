@@ -73,6 +73,10 @@ private:
     char        apInterface[64];
 
 
+    int isRedirected;
+    int isDestroied;
+
+
     static Application *AppThreadCallBack;
 
     static void *do_dnsServer(void *args);
