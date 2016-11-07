@@ -27,7 +27,7 @@ using namespace dns;
 void DnsServer::init(int dPort) {
 
 
-    m_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    m_sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
     m_address.sin_family = AF_INET;
     m_address.sin_addr.s_addr = INADDR_ANY;
@@ -59,8 +59,10 @@ void DnsServer::run(){
 
         int nbytes = recvfrom(m_sockfd, buffer, BUFFER_SIZE, 0,
                      (struct sockaddr *) &clientAddress, &addrLen);
-       
+      
+#ifdef  FASTERCONFIG_DEBUG
         dump_buffer(buffer, nbytes);
+#endif
         decode_header(buffer);
         decode_domain_name(buffer);
         
@@ -68,8 +70,9 @@ void DnsServer::run(){
 
         encode_header(buffer);
         nbytes = encode(buffer);
+#ifdef FASTERCONFIG_DEBUG
         dump_buffer(buffer, nbytes);
-
+#endif
 
         sendto(m_sockfd, buffer, nbytes, 0, (struct sockaddr *) &clientAddress,
                addrLen);

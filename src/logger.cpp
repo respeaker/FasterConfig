@@ -17,7 +17,8 @@
 #include <iostream>
 using namespace dns;
 using namespace std;
-
+//#define DEBUG_LEVEL 10 // open debug
+#define DEBUG_LEVEL 0  // close debug
 // static
 Logger* Logger::_instance = 0;
 ofstream Logger::_file("/tmp/fasterconfig.log", ios::out|ios::trunc);
@@ -30,6 +31,7 @@ debugconf.log_stderr = 1;
 debugconf.log_syslog = 0;
 debugconf.syslog_facility = 0;
 }
+
 Logger& Logger::instance() throw() {
 
     if (_instance == 0) {
@@ -75,7 +77,7 @@ void Logger::_debug(const char *filename, int line, int level, const char *forma
 
     time(&ts);
 
-    if (10 >= level) {
+    if (DEBUG_LEVEL >= level) {
         sigemptyset(&block_chld);
         sigaddset(&block_chld, SIGCHLD);
         sigprocmask(SIG_BLOCK, &block_chld, NULL);
