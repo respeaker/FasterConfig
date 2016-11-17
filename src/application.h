@@ -55,6 +55,7 @@ public:
     void read_double_from_config_line(char* config_line, double* val);
     void read_str_from_config_line(char* config_line, char* val) ;
     void read_config_file(const char* config_filename) ;
+    int getNetworkStatus(const char *interfaceName);
 
     int islocked();
 private:

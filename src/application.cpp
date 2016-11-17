@@ -90,7 +90,9 @@ void Application::run() {
     int locked;
     while (1) {
         //make sure the same rule run only once
-        locked = islocked();
+        if (islocked() || (getNetworkStatus(staInterface) == 0)) locked = 1;
+        else locked = 0;
+
         if (locked) {
             if (isRedirected == 1) {
                 isDestroied = 0;
@@ -197,5 +199,33 @@ int Application::islocked() {
     globfree(&results);
     return file_found;
 }
+int Application::getNetworkStatus(const char *interfaceName) {
+    struct ifaddrs *ifaddr, *ifa;
+    int family, s;
+    char host[NI_MAXHOST];
+
+    if (getifaddrs(&ifaddr) == -1) {
+        perror("getifaddrs");
+        return 0;
+    }
 
 
+    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr == NULL) continue;
+
+        s = getnameinfo(ifa->ifa_addr, sizeof(struct sockaddr_in), host, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);
+
+        if ((strcmp(ifa->ifa_name, interfaceName) == 0) && (ifa->ifa_addr->sa_family == AF_INET)) {
+            if (s != 0) {
+                printf("getnameinfo() failed: %s\n", gai_strerror(s));
+                return 0;
+            }
+            printf("\tInterface : <%s>\n", ifa->ifa_name);
+            printf("\t  Address : <%s>\n", host);
+            return 1;
+        }
+    }
+
+    freeifaddrs(ifaddr);
+    return 0;
+}
