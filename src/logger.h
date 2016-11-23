@@ -31,7 +31,7 @@
 
 
 namespace dns {
-//#define FASTERCONFIG_DEBUG
+#define FASTERCONFIG_DEBUG
 #ifdef FASTERCONFIG_DEBUG
 #define MSG(fmt, args...) cout << ("FASTERCONFIG: " fmt, ## args) << endl;
 #else
