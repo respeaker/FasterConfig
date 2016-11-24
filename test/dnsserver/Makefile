@@ -2,10 +2,10 @@
 #Makefile for simple  dnslookup
 ###########################################  
 INC=../../src 
-LIB= -lpthread 
+LIB= -lpthread -lresolv
   
 CC=g++ 
-CC_FLAG=-Wall -std=c++11
+CC_FLAG= -std=c++11
   
 PRG=dnsserver
 OBJ=main.cpp ../../src/dnsserver.cpp 	\
@@ -17,7 +17,7 @@ OBJ=main.cpp ../../src/dnsserver.cpp 	\
 				../../src/httpd.cpp
   
 $(PRG):$(OBJ)  
-	$(CC) -I$(INC)  -o $@ $(OBJ)  $(LIB)
+	$(CC) -I$(INC) -g -o $@ $(OBJ)  $(LIB) $(CC_FLAG) 
       
 .SUFFIXES: .c .o .cpp  
 .cpp.o:  

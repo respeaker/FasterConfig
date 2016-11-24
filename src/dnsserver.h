@@ -33,24 +33,36 @@
 
 #ifndef _DNS_SERVER_H
 #define	_DNS_SERVER_H
-
+#include <sys/socket.h>
+#include <arpa/inet.h>
 #include <netinet/in.h>
-
+#include <stdint.h>
 #include "logger.h"
 
 namespace dns {
 
-struct DNSHeaderFlags {
-    unsigned char usQR : 1;
-    unsigned char usOpcode : 4;
-    unsigned char usAA : 1;
-    unsigned char usTC : 1;
-    unsigned char usRD : 1;
-    unsigned char usRA : 1;
-    unsigned char usZ :3;
-    unsigned char usRCODE : 4;
-};
 
+/*
+ * Define constants based on RFC 883, RFC 1034, RFC 1035
+ */
+#define NS_PACKETSZ	512	/* maximum packet size */
+#define NS_MAXDNAME	1025	/* maximum domain name */
+#define NS_MAXCDNAME	255	/* maximum compressed domain name */
+#define NS_MAXLABEL	63	/* maximum length of domain label */
+#define NS_HFIXEDSZ	12	/* #/bytes of fixed data in header */
+#define NS_QFIXEDSZ	4	/* #/bytes of fixed data in query */
+#define NS_RRFIXEDSZ	10	/* #/bytes of fixed data in r record */
+#define NS_INT32SZ	4	/* #/bytes of data in a u_int32_t */
+#define NS_INT16SZ	2	/* #/bytes of data in a uint16_t */
+#define NS_INT8SZ	1	/* #/bytes of data in a u_int8_t */
+#define NS_INADDRSZ	4	/* IPv4 T_A */
+#define NS_IN6ADDRSZ	16	/* IPv6 T_AAAA */
+#define NS_CMPRSFLGS	0xc0	/* Flag bits indicating name compression. */
+#define NS_DEFAULTPORT	53	/* For both TCP and UDP. */
+
+
+#define	IP_ADDR_LEN 4
+#define	IP6_ADDR_LEN 16
 /*
  * Currently defined type values for resources and queries.
  */
@@ -108,39 +120,56 @@ typedef enum __ns_type {
 } ns_type;
 
 
-struct DNSHeader {
-    unsigned short usTransID; //标识符
-    unsigned short usFlags; //各种标志位
-    unsigned short usQDCOUNT; //Question字段个数
-    unsigned short usANCOUNT; //Answer字段个数
-    unsigned short usNSCOUNT; //Authority字段个数
-    unsigned short usARCOUNT; //Additional字段个数
+#ifndef ns_t_wins
+#define ns_t_wins 0xFF01      /* WINS name lookup */
+#endif
+
+/* globals */
+
+struct dns_header {
+   uint16_t id;                /* DNS packet ID */
+#ifdef WORDS_BIGENDIAN
+   u_char  qr: 1;             /* response flag */
+   u_char  opcode: 4;         /* purpose of message */
+   u_char  aa: 1;             /* authoritative answer */
+   u_char  tc: 1;             /* truncated message */
+   u_char  rd: 1;             /* recursion desired */
+   u_char  ra: 1;             /* recursion available */
+   u_char  unused: 1;         /* unused bits */
+   u_char  ad: 1;             /* authentic data from named */
+   u_char  cd: 1;             /* checking disabled by resolver */
+   u_char  rcode: 4;          /* response code */
+#else /* WORDS_LITTLEENDIAN */
+   u_char  rd: 1;             /* recursion desired */
+   u_char  tc: 1;             /* truncated message */
+   u_char  aa: 1;             /* authoritative answer */
+   u_char  opcode: 4;         /* purpose of message */
+   u_char  qr: 1;             /* response flag */
+   u_char  rcode: 4;          /* response code */
+   u_char  cd: 1;             /* checking disabled by resolver */
+   u_char  ad: 1;             /* authentic data from named */
+   u_char  unused: 1;         /* unused bits */
+   u_char  ra: 1;             /* recursion available */
+#endif
+   uint16_t num_q;             /* Number of questions */
+   uint16_t num_answer;        /* Number of answer resource records */
+   uint16_t num_auth;          /* Number of authority resource records */
+   uint16_t num_res;           /* Number of additional resource records */
 };
 
-struct  DNSQuestionSection {
-     char*                   usNAME;
-    unsigned short          usTYPE;     //type
-    unsigned short          usCLASS;    //class
-    unsigned int            NameLength;
-};
 
-struct DNSAnswerSection{
-     char                    *usNAME; 
-    unsigned short          usTYPE;     //type
-    unsigned short          usCLASS;    //class
-    unsigned int            usTTL;
-    unsigned short          usRDLENGTH;
-     char*                   usRDATA;
-    unsigned int            NameLength;
-    unsigned int            RDdataLength;
-};
-
-struct DNS {
-    struct DNSHeader               usHeader;
-    struct DNSQuestionSection*      usQuestionSection;
-    struct DNSAnswerSection*        usAnswerSection;
-};
-
+/*
+ * Currently defined opcodes.
+ */
+typedef enum __ns_opcode {
+	ns_o_query = 0,		/* Standard query. */
+	ns_o_iquery = 1,	/* Inverse query (deprecated/unsupported). */
+	ns_o_status = 2,	/* Name server status query (unsupported). */
+				/* Opcode 3 is undefined/reserved. */
+	ns_o_notify = 4,	/* Zone change notification. */
+	ns_o_update = 5,	/* Zone update message. */
+	ns_o_max = 6
+} ns_opcode;
 
 class Resolver;
 
@@ -180,27 +209,38 @@ private:
     void decode_header(const char *buffer);
     void decode_domain_name(const char *buffer);
     void encode_header(char *buffer);
-    void encode_domain(char *&buffer, const std::string &domain);
     int encode(char *buffer);
     int get2byte(const char *&buffer);
     void put2byte(char *&buffer, uint value);
     void dump_buffer(const char *buffer, int size);
-    
+	void encode_spoof_dns_header(char *buffer,
+							  const uint16_t id,  
+							  const uint16_t answ,
+							  const uint16_t auth,
+							  const uint16_t addi);
+	u_char* prepare_dns_reply_a(
+									   int t_type, 
+									   int *dns_len, 
+									   int *n_answ, 
+									   int *n_auth, 
+									   int *n_addi)  ;  
+	void put_block_date(char *buffer,  u_char *data ,int len);
+
+	void encode_domain(char *buffer,char *name, int *len);
+	void encode_query_typy_and_class(char *buffer,int *len);
 private:
     static const int BUFFER_SIZE = 1024;
 
     struct sockaddr_in m_address;
     int m_sockfd;
 
-    struct DNSHeader header;
-
+	const char *spoof_addr="172.8.0.1";
     std::string domainName;
 
     Logger *logger;
-    //Query m_query;
-    //Response m_response;
 
-    //Resolver& m_resolver;
+   int16_t t_class;
+   uint16_t t_type;
 };
 }
 
