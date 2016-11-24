@@ -158,7 +158,7 @@ void DnsServer::run(){
 	   encode_spoof_dns_header(buffer,TransID,n_answ,n_auth,n_addi);
 	   nbytes = 12;
 	   encode_domain(buffer+nbytes, name, &name_len);        /*encode name*/
-	   nbytes += name_len + 1;
+	   nbytes += name_len;
 	   encode_query_typy_and_class(buffer + nbytes, &nbytes);
 	   put_block_date(buffer+nbytes,reply_data,reply_length);  /*encode reply*/
 	   nbytes += reply_length;
@@ -243,6 +243,7 @@ www.baidu.com
     }
 
     *buffer++ = domain.size() - start; // last label length octet
+	*len += 1;
     for (int i=start; i<domain.size(); i++) {
 
         *buffer++ = domain[i]; // last label octets
