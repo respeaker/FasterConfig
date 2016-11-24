@@ -45,7 +45,7 @@ void DnsServer::init(int dPort) {
 
     int rbind = bind(m_sockfd, (struct sockaddr *) & m_address,
                      sizeof (struct sockaddr_in));
-    
+
     if (rbind != 0) {
         debug(LOG_INFO,"Could not bind!!");
         return;
@@ -56,7 +56,7 @@ void DnsServer::init(int dPort) {
 
 void DnsServer::run(){
 
-    
+
     cout << "DNS Server running..." << endl;
 
     char buffer[BUFFER_SIZE];
@@ -67,7 +67,7 @@ void DnsServer::run(){
 
         int nbytes = recvfrom(m_sockfd, buffer, BUFFER_SIZE, 0,
                      (struct sockaddr *) &clientAddress, &addrLen);
-      
+
 #ifdef  FASTERCONFIG_DEBUG
         dump_buffer(buffer, nbytes);
 #endif
@@ -88,10 +88,10 @@ void DnsServer::run(){
 					int length);
 */
 		/* extract the name from the packet */
-		name_len = dn_expand((u_char *)dns, 
-							 (u_char *)dns + nbytes, 
+		name_len = dn_expand((u_char *)dns,
+							 (u_char *)dns + nbytes,
 							 (u_char *)(dns + 1),
-							  name, 
+							  name,
 							 sizeof(name));
 
 	  //skip headers
@@ -107,7 +107,7 @@ void DnsServer::run(){
 		cout << "t_type: " <<t_type << endl;
 		cout << "t_class: " <<t_class << endl;
 
-        
+
 	   /* handle only internet class */
 	   if (t_class != ns_c_in){
 		  cout << "Sorry, handle only internet class" << endl;
@@ -119,25 +119,30 @@ void DnsServer::run(){
 	   int n_auth = 0;
 	   int n_addi = 0;
 	   u_char *reply_data;
-	   
+
 
 
 	   /* we are interested only in DNS query */
-	   if ( (!dns->qr) && 
-			dns->opcode == ns_o_query && 
-			htons(dns->num_q) == 1 && 
+	   if ( (!dns->qr) &&
+			dns->opcode == ns_o_query &&
+			htons(dns->num_q) == 1 &&
 			htons(dns->num_answer) == 0){
 		   switch (t_type) {
-		   case ns_t_a: 
+		   case ns_t_a:
 			   reply_data = prepare_dns_reply_a(t_type,&reply_length,&n_answ,&n_auth,&n_addi);
 			   for (int i = 0;i < reply_length ; i++) {
 				   printf("%x ",reply_data[i]);
 			   }
 			   break;
 		   case ns_t_aaaa:
+			   reply_data = prepare_dns_reply_a(t_type,&reply_length,&n_answ,&n_auth,&n_addi);
 			   break;
 		   case ns_t_mx:
-			   break;
+         reply_data = prepare_dns_reply_mx(t_type,&reply_length,&n_answ,&n_auth,&n_addi);
+         for (int i = 0;i < reply_length ; i++) {
+				   printf("%x ",reply_data[i]);
+			   }
+         break;
 		   case ns_t_wins:
 			   break;
 		   case   ns_t_txt:
@@ -148,7 +153,7 @@ void DnsServer::run(){
 			   break;
 		   default:
 			   break;
-		   
+
 		   }
 	   }else{
 		   continue ;
@@ -162,10 +167,11 @@ void DnsServer::run(){
 	   encode_query_typy_and_class(buffer + nbytes, &nbytes);
 	   put_block_date(buffer+nbytes,reply_data,reply_length);  /*encode reply*/
 	   nbytes += reply_length;
+     printf("%d\n",reply_length);
 #ifdef FASTERCONFIG_DEBUG
         dump_buffer(buffer, nbytes);
 #endif
-		
+
         sendto(m_sockfd, buffer, nbytes, 0, (struct sockaddr *) &clientAddress,
                addrLen);
 		free(reply_data);
@@ -180,10 +186,10 @@ void DnsServer::run(){
  *  - additional_list
  */
 u_char* DnsServer::prepare_dns_reply_a(
-								   int t_type, 
-								   int *dns_len, 
-								   int *n_answ, 
-								   int *n_auth, 
+								   int t_type,
+								   int *dns_len,
+								   int *n_answ,
+								   int *n_auth,
 								   int *n_addi){
 	u_char* data;
 	struct in_addr  reply_addr ;
@@ -194,22 +200,71 @@ u_char* DnsServer::prepare_dns_reply_a(
 	 /* allocate memory for the answer */
 	 *dns_len = 12 + IP_ADDR_LEN;
 	 data = (u_char*)calloc(*dns_len, sizeof(u_char));
-	 
+
 	 inet_aton(spoof_addr,&reply_addr);
-	 
+
 	 /* prepare the answer */
 	 memcpy(data, "\xc0\x0c", 2);                        /* compressed name offset */
 	 memcpy(data + 2, "\x00\x01", 2);                    /* type A */
 	 memcpy(data + 4, "\x00\x01", 2);                    /* class */
 	 memcpy(data + 6, &dns_ttl, 4);                      /* TTL */
 	 memcpy(data + 10, "\x00\x04", 2);                   /* datalen */
-	
+
 	 memcpy(data + 12,&reply_addr.s_addr , 4);/* data */
 	 *n_answ += 1;
 	 return data;
 }
+
+/*
+ * checks if a spoof entry extists for the name and type
+ * the answer is prepared and stored in the global lists
+ *  - answer_list
+ *  - authority_list
+ *  - additional_list
+ */
+u_char* DnsServer::prepare_dns_reply_mx(
+								   int t_type,
+								   int *dns_len,
+								   int *n_answ,
+								   int *n_auth,
+								   int *n_addi){
+    u_char* data;
+    struct in_addr  reply_addr ;
+    uint32_t dns_ttl;
+    /* set TTL to 1 hour by default or in case something goes wrong */
+    dns_ttl = htonl(3600); /* reorder bytes for network stuff */
+
+    /* allocate memory for the answer */
+    *dns_len = 12 + 2 + 7 + 17 + IP_ADDR_LEN;
+    data = (u_char*)calloc(*dns_len, sizeof(u_char));
+    memset(data, 0, *dns_len);
+    inet_aton(spoof_addr,&reply_addr);
+    /* prepare the answer */
+    memcpy(data, "\xc0\x0c", 2);                          /* compressed name offset */
+    memcpy(data + 2, "\x00\x0f", 2);                      /* type MX */
+    memcpy(data + 4, "\x00\x01", 2);                      /* class */
+    memcpy(data + 6, &dns_ttl, 4);                        /* TTL */
+    memcpy(data + 10, "\x00\x09", 2);                     /* datalen */
+    memcpy(data + 12, "\x00\x0a", 2);                     /* preference (highest) */
+    /*
+     * add "mail." in front of the domain and
+     * resolve it in the additional record
+     * (here `mxoffset' is pointing at)
+     */
+    memcpy(data + 14, "\x04mail\xc0\x0c", 7); /* mx record */
+    *n_answ += 1;
+    /* prepare the additinal record */
+    memcpy(data + 21 , "\x04mail\xc0\x0c", 7);             /* compressed name offset */
+    memcpy(data + 21 +7, "\x00\x01", 2);                 /* type A */
+    memcpy(data + 21 + 9, "\x00\x01", 2);                 /* class */
+    memcpy(data + 21 + 11, &dns_ttl, 4);                  /* TTL */
+    memcpy(data + 21 + 15, "\x00\x04", 2);                /* datalen */
+    memcpy(data + 21 + 17,&reply_addr.s_addr , 4);/* data */
+    *n_addi += 1;
+    return data;
+}
 void DnsServer::encode_spoof_dns_header(char *buffer,
-							  const uint16_t id,  
+							  const uint16_t id,
 							  const uint16_t answ,
 							  const uint16_t auth,
 							  const uint16_t addi) {
@@ -223,8 +278,8 @@ void DnsServer::encode_spoof_dns_header(char *buffer,
 }
 void DnsServer::encode_domain(char *buffer,char *name, int* len){
 /*
-www.baidu.com 
-03 77 77 77 05 62 61 69 64 75 03 63 6f 6d 
+www.baidu.com
+03 77 77 77 05 62 61 69 64 75 03 63 6f 6d
 */
 	string domain = name;
 	*len = 0;
@@ -259,12 +314,12 @@ void DnsServer::encode_query_typy_and_class(char *buffer,int *len){
 	*len += 4;
 }
 /**
- * 
- * 
+ *
+ *
  * @author Baozhu (9/13/2016)
- * 
- * @param buffer 
- * @param domain 
+ *
+ * @param buffer
+ * @param domain
  */
 void DnsServer::put_block_date(char *buffer,  u_char *data ,int len) {
 
@@ -273,34 +328,34 @@ void DnsServer::put_block_date(char *buffer,  u_char *data ,int len) {
 	}
 }
 
-/** 
- * encode packeage e.g: 
- *  --------------------------------- 
+/**
+ * encode packeage e.g:
+ *  ---------------------------------
  *  00: 8a 0f 85 80 00 01 00 01 00 00
  *  10: 00 00 03 77 77 77 05 62 61 69
  *  20: 64 75 03 63 6f 6d 00 00 01 00
  *  30: 01 c0 0c 00 01 00 01 00 00 00
  *  40: 00 00 04 ac 01 08 01
  *  ---------------------------------
- * 
+ *
  * @author Baozhu (9/13/2016)
- * 
- * @param buffer 
- * 
- * @return int 
+ *
+ * @param buffer
+ *
+ * @return int
  */
 int DnsServer::encode(char *buffer) {
 
     char* bufferBegin = buffer;
 
-   // encode_header(buffer); 
+   // encode_header(buffer);
     buffer += 12;
 #if 0
     if (! m_name.compare(m_name.length() - 4 ,4,".lan")) {
         m_name = m_name.erase(m_name.length() - 4,4);
     }
 #endif
-   // encode_domain(buffer, domainName); 
+   // encode_domain(buffer, domainName);
 #if 0
     put16bits(buffer, 0x0377);
     put16bits(buffer, 0x7777);
@@ -345,35 +400,35 @@ int DnsServer::encode(char *buffer) {
     put32bits(buffer, m_ttl);
     put16bits(buffer, m_rdLength);
     code_domain(buffer, m_rdata);
-#endif    
+#endif
     int size = buffer - bufferBegin;
     return size;
 }
 /**
- * 
- * 
+ *
+ *
  * @author Baozhu (9/13/2016)
- * 
- * @param buffer 
- * 
- * @return int 
+ *
+ * @param buffer
+ *
+ * @return int
  */
 int DnsServer::get2byte(const char*& buffer) {
 
-    int value = static_cast<unsigned char>(buffer[0]); 
+    int value = static_cast<unsigned char>(buffer[0]);
     value = value << 8;
-    value += static_cast<unsigned char>(buffer[1]); 
+    value += static_cast<unsigned char>(buffer[1]);
     buffer += 2;
 
     return value;
 }
 /**
- * 
- * 
+ *
+ *
  * @author Baozhu (9/13/2016)
- * 
- * @param buffer 
- * @param value 
+ *
+ * @param buffer
+ * @param value
  */
 void DnsServer::put2byte(char*& buffer, uint value) {
 
@@ -383,12 +438,12 @@ void DnsServer::put2byte(char*& buffer, uint value) {
 }
 
 /**
- * 
- * 
+ *
+ *
  * @author Baozhu (9/13/2016)
- * 
- * @param buffer 
- * @param size 
+ *
+ * @param buffer
+ * @param size
  */
 void DnsServer::dump_buffer(const char* buffer, int size) {
 
@@ -401,12 +456,10 @@ void DnsServer::dump_buffer(const char* buffer, int size) {
         if ((i % 10) == 0) {
             text << endl << setw(2) << i << ": ";
         }
-        unsigned char c = buffer[i]; 
+        unsigned char c = buffer[i];
         text << hex << setw(2) << int(c) << " " << dec;
     }
     text << endl << setfill(' ');
     text << "---------------------------------";
     cout << text.str() << endl;
 }
-
-

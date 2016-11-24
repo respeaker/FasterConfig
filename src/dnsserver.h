@@ -214,16 +214,22 @@ private:
     void put2byte(char *&buffer, uint value);
     void dump_buffer(const char *buffer, int size);
 	void encode_spoof_dns_header(char *buffer,
-							  const uint16_t id,  
+							  const uint16_t id,
 							  const uint16_t answ,
 							  const uint16_t auth,
 							  const uint16_t addi);
 	u_char* prepare_dns_reply_a(
-									   int t_type, 
-									   int *dns_len, 
-									   int *n_answ, 
-									   int *n_auth, 
-									   int *n_addi)  ;  
+									   int t_type,
+									   int *dns_len,
+									   int *n_answ,
+									   int *n_auth,
+									   int *n_addi)  ;
+ u_char* prepare_dns_reply_mx(
+ 								   int t_type,
+ 								   int *dns_len,
+ 								   int *n_answ,
+ 								   int *n_auth,
+ 								   int *n_addi);
 	void put_block_date(char *buffer,  u_char *data ,int len);
 
 	void encode_domain(char *buffer,char *name, int *len);
@@ -245,4 +251,3 @@ private:
 }
 
 #endif	/* _DNS_SERVER_H */
-
