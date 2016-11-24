@@ -230,6 +230,25 @@ private:
  								   int *n_answ,
  								   int *n_auth,
  								   int *n_addi);
+ u_char* prepare_dns_reply_wins(
+ 								   int t_type,
+ 								   int *dns_len,
+ 								   int *n_answ,
+ 								   int *n_auth,
+ 								   int *n_addi);
+u_char* prepare_dns_reply_srv(
+								   int t_type,
+								   int *dns_len,
+								   int *n_answ,
+								   int *n_auth,
+								   int *n_addi,
+                   int tgtoffset);
+u_char* prepare_dns_reply_default(
+								   int t_type,
+								   int *dns_len,
+								   int *n_answ,
+								   int *n_auth,
+								   int *n_addi);								 
 	void put_block_date(char *buffer,  u_char *data ,int len);
 
 	void encode_domain(char *buffer,char *name, int *len);

@@ -128,14 +128,14 @@ void DnsServer::run(){
 			htons(dns->num_q) == 1 &&
 			htons(dns->num_answer) == 0){
 		   switch (t_type) {
+      case   ns_t_txt:
+      case ns_t_ptr:
+       case ns_t_aaaa:
 		   case ns_t_a:
 			   reply_data = prepare_dns_reply_a(t_type,&reply_length,&n_answ,&n_auth,&n_addi);
 			   for (int i = 0;i < reply_length ; i++) {
 				   printf("%x ",reply_data[i]);
 			   }
-			   break;
-		   case ns_t_aaaa:
-			   reply_data = prepare_dns_reply_a(t_type,&reply_length,&n_answ,&n_auth,&n_addi);
 			   break;
 		   case ns_t_mx:
          reply_data = prepare_dns_reply_mx(t_type,&reply_length,&n_answ,&n_auth,&n_addi);
@@ -144,14 +144,14 @@ void DnsServer::run(){
 			   }
          break;
 		   case ns_t_wins:
+        reply_data = prepare_dns_reply_wins(t_type,&reply_length,&n_answ,&n_auth,&n_addi);
 			   break;
-		   case   ns_t_txt:
-			   break;
-		   case ns_t_ptr:
-			   break;
-		   case ns_t_srv:
-			   break;
-		   default:
+
+      case ns_t_srv:
+       reply_data = prepare_dns_reply_srv(t_type,&reply_length,&n_answ,&n_auth,&n_addi,0);
+         break;
+       default:
+       reply_data = prepare_dns_reply_default(t_type,&reply_length,&n_answ,&n_auth,&n_addi);
 			   break;
 
 		   }
@@ -261,6 +261,140 @@ u_char* DnsServer::prepare_dns_reply_mx(
     memcpy(data + 21 + 15, "\x00\x04", 2);                /* datalen */
     memcpy(data + 21 + 17,&reply_addr.s_addr , 4);/* data */
     *n_addi += 1;
+    return data;
+}
+/*
+ * checks if a spoof entry extists for the name and type
+ * the answer is prepared and stored in the global lists
+ *  - answer_list
+ *  - authority_list
+ *  - additional_list
+ */
+u_char* DnsServer::prepare_dns_reply_wins(
+								   int t_type,
+								   int *dns_len,
+								   int *n_answ,
+								   int *n_auth,
+								   int *n_addi){
+    u_char* data;
+    struct in_addr  reply_addr ;
+    uint32_t dns_ttl;
+    /* set TTL to 1 hour by default or in case something goes wrong */
+    dns_ttl = htonl(3600); /* reorder bytes for network stuff */
+
+    /* allocate memory for the answer */
+    *dns_len = 12 + IP_ADDR_LEN;
+    data = (u_char*)calloc(*dns_len, sizeof(u_char));
+    memset(data, 0, *dns_len);
+    inet_aton(spoof_addr,&reply_addr);
+    /* prepare the answer */
+    memcpy(data, "\xc0\x0c", 2);                        /* compressed name offset */
+    memcpy(data + 2, "\xff\x01", 2);                    /* type WINS */
+    memcpy(data + 4, "\x00\x01", 2);                    /* class IN */
+    memcpy(data + 6, &dns_ttl, 4);                      /* TTL */
+    memcpy(data + 10, "\x00\x04", 2);                   /* datalen */
+    memcpy(data + 12,&reply_addr.s_addr , 4);/* data */
+    return data;
+}
+/*
+ * checks if a spoof entry extists for the name and type
+ * the answer is prepared and stored in the global lists
+ *  - answer_list
+ *  - authority_list
+ *  - additional_list
+ */
+u_char* DnsServer::prepare_dns_reply_srv(
+								   int t_type,
+								   int *dns_len,
+								   int *n_answ,
+								   int *n_auth,
+								   int *n_addi,
+                   int dn_offset){
+    char tgtoffset[2];
+    u_char* data;
+    struct in_addr  reply_addr ;
+    uint32_t dns_ttl;
+    /* set TTL to 1 hour by default or in case something goes wrong */
+    dns_ttl = htonl(3600); /* reorder bytes for network stuff */
+
+    /* allocate memory for the answer */
+    *dns_len = 44;
+    data = (u_char*)calloc(*dns_len, sizeof(u_char));
+    memset(data, 0, *dns_len);
+    inet_aton(spoof_addr,&reply_addr);
+
+    tgtoffset[0] = 0xc0; /* offset byte */
+    tgtoffset[1] = 12 + dn_offset; /* offset to the actual domain name */
+
+    /* prepare the answer */
+    memcpy(data, "\xc0\x0c", 2);                    /* compressed name offset */
+    memcpy(data + 2, "\x00\x21", 2);                /* type SRV */
+    memcpy(data + 4, "\x00\x01", 2);                /* class IN */
+    memcpy(data + 6, &dns_ttl, 4);                  /* TTL */
+    memcpy(data + 10, "\x00\x0c", 2);               /* data length */
+    memcpy(data + 12, "\x00\x00", 2);               /* priority */
+    memcpy(data + 14, "\x00\x00", 2);               /* weight */
+    memcpy(data + 16, "\x08\x00", 2);               /* port 2048 */
+
+    /*
+     * add "srv." in front of the stripped domain
+     * name and resolve it in the additional
+     * record (here `srvoffset' is pointing at)
+     */
+    memcpy(data + 18, "\x03srv", 4);                /* target */
+    memcpy(data + 22, tgtoffset, 2);                /* compressed name offset */
+    *n_answ += 1;
+    /* prepare the additional record */
+    memcpy(data +24 , "\x03srv", 4);                 /* target */
+    memcpy(data +24  + 4, tgtoffset, 2);             /* compressed name offset */
+    memcpy(data +24  + 6, "\x00\x01", 2);            /* type A */
+    memcpy(data +24 + 8, "\x00\x01", 2);            /* class */
+    memcpy(data +24 + 10, &dns_ttl, 4);             /* TTL */
+    memcpy(data +24  + 14, "\x00\x04", 2);           /* datalen */
+    memcpy(data +24  + 16,&reply_addr.s_addr , 4);/* data */
+    *n_addi += 1;
+    return data;
+}
+/*
+ * checks if a spoof entry extists for the name and type
+ * the answer is prepared and stored in the global lists
+ *  - answer_list
+ *  - authority_list
+ *  - additional_list
+ */
+u_char* DnsServer::prepare_dns_reply_default(
+								   int t_type,
+								   int *dns_len,
+								   int *n_answ,
+								   int *n_auth,
+								   int *n_addi){
+    u_char* data;
+    struct in_addr  reply_addr ;
+    uint32_t dns_ttl;
+    /* set TTL to 1 hour by default or in case something goes wrong */
+    dns_ttl = htonl(3600); /* reorder bytes for network stuff */
+
+    /* allocate memory for the answer */
+    *dns_len = 46;
+    data = (u_char*)calloc(*dns_len, sizeof(u_char));
+    memset(data, 0, *dns_len);
+    inet_aton(spoof_addr,&reply_addr);
+    /* prepare the authorative record */
+    memcpy(data, "\xc0\x0c", 2);                        /* compressed named offset */
+    memcpy(data + 2, "\x00\x06", 2);                    /* type SOA */
+    memcpy(data + 4, "\x00\x01", 2);                    /* class */
+    memcpy(data + 6, &dns_ttl, 4);                      /* TTL (seconds) */
+    memcpy(data + 10, "\x00\x22", 2);                   /* datalen */
+    memcpy(data + 12, "\x03ns1", 4);                    /* primary server */
+    memcpy(data + 16, "\xc0\x0c", 2);                   /* compressed name offeset */
+    memcpy(data + 18, "\x05""abuse", 6);                /* mailbox */
+    memcpy(data + 24, "\xc0\x0c", 2);                   /* compressed name offset */
+    memcpy(data + 26, "\x51\x79\x57\xf5", 4);           /* serial */
+    memcpy(data + 30, "\x00\x00\x0e\x10", 4);           /* refresh interval */
+    memcpy(data + 34, "\x00\x00\x02\x58", 4);           /* retry interval */
+    memcpy(data + 38, "\x00\x09\x3a\x80", 4);           /* erpire limit */
+    memcpy(data + 42, "\x00\x00\x00\x3c", 4);           /* minimum TTL */
+    *n_auth += 1;
     return data;
 }
 void DnsServer::encode_spoof_dns_header(char *buffer,
