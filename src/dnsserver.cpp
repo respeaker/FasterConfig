@@ -25,7 +25,7 @@
 #include <resolv.h>
 
 #include<stdio.h>
-
+#include <stdlib.h>
 
 #include "dnsserver.h"
 
