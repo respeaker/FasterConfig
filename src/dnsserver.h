@@ -259,7 +259,7 @@ private:
     struct sockaddr_in m_address;
     int m_sockfd;
 
-	const char *spoof_addr="172.8.0.1";
+	const char *spoof_addr="172.31.255.240";
     std::string domainName;
 
     Logger *logger;
