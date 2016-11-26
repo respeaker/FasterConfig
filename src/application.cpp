@@ -82,13 +82,12 @@ void Application::run() {
         printf("FATAL: Failed to create a new thread (dnsserver) - exiting\n");
         return;
     }
-#if 0
     result = pthread_create(&httpserver_pid, NULL, &do_httpServer, NULL);
     if (result != 0) {
         printf("FATAL: Failed to create a new thread (dnsserver) - exiting\n");
         return;
     }
-#endif
+
     int locked;
     while (1) {
         //make sure the same rule run only once
@@ -113,7 +112,7 @@ void Application::run() {
         if (locked == 1 && isRedirected != 1) {
             isRedirected = 1;
             iptable->iptable_redirect_dns(apInterface, dnsPort);
-            //iptable->iptable_redirect_http(dnsIP, gatewayIP, HttpPort); 
+            iptable->iptable_redirect_http(dnsIP, gatewayIP, HttpPort); 
         }
         sleep(1);
     }
@@ -121,6 +120,7 @@ void Application::run() {
 
 void* Application::do_dnsServer(void *args) {
     printf("dns server is runing .......\n");
+	AppThreadCallBack->m_server.set_spoof_addr(AppThreadCallBack->dnsIP);
     AppThreadCallBack->m_server.run();
 }
 
