@@ -204,12 +204,12 @@ public:
      *  handling them through the @ref Resolver and sending back the responses.
      */
     void run();
+	void set_spoof_addr(char *addr);
 
 private:
     void decode_header(const char *buffer);
     void decode_domain_name(const char *buffer);
     void encode_header(char *buffer);
-    int encode(char *buffer);
     int get2byte(const char *&buffer);
     void put2byte(char *&buffer, uint value);
     void dump_buffer(const char *buffer, int size);
@@ -259,7 +259,7 @@ private:
     struct sockaddr_in m_address;
     int m_sockfd;
 
-	const char *spoof_addr="172.31.255.240";
+	char  spoof_addr[64];
     std::string domainName;
 
     Logger *logger;
