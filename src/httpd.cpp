@@ -1333,77 +1333,33 @@ void Httpd::http_callback_404(httpd *webserver, request *r, int error_code) {
      * http request to a standard port. At any rate, this handler is called only
      * if the internet/auth server is down so it's not a huge loss, but still.
      */
-    //snprintf(tmp_url, (sizeof(tmp_url) - 1), "http://%s%s%s%s",
-    //         r->request.host, r->request.path, r->request.query[0] ? "?" : "", r->request.query);
-    debug(LOG_INFO, "You want to visit: %s%s", r->request.host, r->request.path); 
-    snprintf(tmp_url,(sizeof(tmp_url) - 1),"%s",htmlreurl); 
-    debug(LOG_INFO,"%s",htmlreurl); 
-    url = httpdUrlEncode(htmlreurl);
-    debug(LOG_INFO,"%s",url); 
-            /* Re-direct them to auth server */
-            char urlFragment[MAX_BUF];
-            //snprintf(urlFragment,(sizeof(urlFragment) - 1), "config/gw_address=%s&gw_port=%d&gw_id=%s&ip=%s&mac=%s&url=%s",
-            //                  config.gw_address, config.gw_port, config.gw_id, r->clientAddr, mac, url);
-            snprintf(urlFragment,(sizeof(urlFragment) - 1), "config");
-            debug(LOG_INFO,"%s",urlFragment);
-            http_send_redirect(r, htmlreurl, "allow domain");
-            return ; 
-#if 0
-            if (!(mac = arp_get(r->clientAddr))) {
-                /* We could not get their MAC address */
-                debug(LOG_INFO, "Failed to retrieve MAC address for ip %s, so not putting in the login request",
-                      r->clientAddr);
-                asprintf(&urlFragment, "config/gw_address=%s&gw_port=%d&gw_id=%s&ip=%s&url=%s",
-                              config.gw_address, config.gw_port, config.gw_id, r->clientAddr, url);
+    snprintf(tmp_url, (sizeof(tmp_url) - 1), "http://%s%s%s%s",
+             r->request.host, r->request.path, r->request.query[0] ? "?" : "", r->request.query);
 
-                //vasprintf(&urlFragment, "config");
-            } else {
-                debug(LOG_INFO, "Got client MAC address for ip %s: %s", r->clientAddr, mac);
-                asprintf(&urlFragment, "config/gw_address=%s&gw_port=%d&gw_id=%s&ip=%s&mac=%s&url=%s",
-                              config.gw_address, config.gw_port, config.gw_id, r->clientAddr, mac, url);
-                free(mac);
-            }
-#endif
-            // if host is not in whitelist, maybe not in conf or domain'IP changed, it will go to here.
-            debug(LOG_INFO, "Check host %s is in whitelist or not", r->request.host);       // e.g. www.example.com
-            t_firewall_rule *rule;
-            //e.g. example.com is in whitelist
-            // if request http://www.example.com/, it's not equal example.com.
+	//snprintf(tmp_url,(sizeof(tmp_url) - 1),"%s",htmlreurl); 
+    //debug(LOG_INFO,"%s",htmlreurl); 
+    url = httpdUrlEncode(tmp_url);
 
-            for (rule = (t_firewall_rule *)malloc(sizeof(t_firewall_rule)); rule != NULL; rule = rule->next) {
-                debug(LOG_INFO, "rule mask %s,request.host:%s", rule->mask,r->request.host);
-                //if (strstr(r->request.host, rule->mask) == NULL) {
-                //    debug(LOG_INFO, "host %s is not in %s, continue", r->request.host, rule->mask);
-                //    continue;
-                //}
-                int host_length = strlen(r->request.host);
-                int mask_length = strlen(rule->mask);
-                if (host_length != mask_length) {
-                    char prefix[1024] = { 0 };
-                    // must be *.example.com, if not have ".", maybe Phishing. e.g. phishingexample.com
-                    strncpy(prefix, r->request.host, host_length - mask_length - 1);        // e.g. www
-                    strcat(prefix, ".");    // www.
-                    strcat(prefix, rule->mask);     // www.example.com
-                    if (strcasecmp(r->request.host, prefix) == 0) {
-                        debug(LOG_INFO, "allow subdomain");
-                        //fw_allow_host(r->request.host);
-                        http_send_redirect(r, tmp_url, "allow subdomain");
-                        free(url);
-                        return;
-                    }
-                } else {
-                    // e.g. "example.com" is in conf, so it had been parse to IP and added into "iptables allow" when wifidog start. but then its' A record(IP) changed, it will go to here.
-                    debug(LOG_INFO, "allow domain again, because IP changed");
-                    //fw_allow_host(r->request.host);
-                    http_send_redirect(r, tmp_url, "allow domain");
-                    free(url);
-                    return;
-                }
-            }
+	/* Re-direct them to auth server */
+	char *urlFragment;
 
-            debug(LOG_INFO, "Captured %s requesting [%s] and re-directing them to login page", r->clientAddr, url);
-            //http_send_redirect_to_auth(r, urlFragment, "Redirect to login page");
+	if (!(mac = arp_get(r->clientAddr))) {
+		/* We could not get their MAC address */
+		debug(LOG_INFO, "Failed to retrieve MAC address for ip %s, so not putting in the login request",
+			  r->clientAddr);
+		asprintf(&urlFragment, "%s/?gw_address=%s&gw_port=%d&ip=%s&url=%s",htmlreurl,
+					  config.gw_address, config.gw_port, r->clientAddr, url);
 
+		//vasprintf(&urlFragment, "config");
+	} else {
+		debug(LOG_INFO, "Got client MAC address for ip %s: %s", r->clientAddr, mac);
+		asprintf(&urlFragment, "%s/?gw_address=%s&gw_port=%d&ip=%s&mac=%s&url=%s",htmlreurl,
+					  config.gw_address, config.gw_port,  r->clientAddr, mac, url);
+		free(mac);
+	}
+
+	http_send_redirect(r, urlFragment, "Redirect to login page");
+	free(urlFragment);
     free(url);
 }
 
@@ -1489,3 +1445,37 @@ void  Httpd::setHtmlPath(char *path) {
 void Httpd::setReUrl(char *reurl) {
     strcpy(htmlreurl, reurl); 
 }
+
+/**
+ * Get an IP's MAC address from the ARP cache.
+ * Go through all the entries in config->arp_table_path until we find the
+ * requested IP address and return the MAC address bound to it.
+ * @todo Make this function portable (using shell scripts?)
+ */
+char *Httpd::arp_get(const char *req_ip)
+{
+    FILE *proc;
+    char ip[16];
+    char mac[18];
+    char *reply;
+
+    if (!(proc = fopen("/proc/net/arp", "r"))) {
+        return NULL;
+    }   
+
+    /* Skip first line */
+    while (!feof(proc) && fgetc(proc) != '\n') ;
+
+    /* Find ip, copy mac in reply */
+    reply = NULL;
+    while (!feof(proc) && (fscanf(proc, " %15[0-9.] %*s %*s %17[A-Fa-f0-9:] %*s %*s", ip, mac) == 2)) {
+        if (strcmp(ip, req_ip) == 0) {
+            reply = strdup(mac);
+            break;
+        }     }
+
+    fclose(proc);
+
+    return reply;
+}
+

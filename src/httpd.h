@@ -298,6 +298,7 @@ public:
 
     void setHtmlPath(char *path);
     void setReUrl(char *reurl);
+	void setgatewayIP(char* ip);
 private:
     /* The internal web server */
     httpd * webserver = NULL;
@@ -305,6 +306,7 @@ private:
 
     char htmlPath[64];
     char htmlreurl[512];
+
 
     static void* thread_httpd(void *args);
 
